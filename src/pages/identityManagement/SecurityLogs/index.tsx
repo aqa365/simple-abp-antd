@@ -9,7 +9,6 @@ const TableList: React.FC = () => {
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
   const l = simpleAbpUtils.localization.getResource('AbpIdentity');
-  const g = simpleAbpUtils.auth.isGranted;
 
   const columns: ProColumns<Identity.SecurityLog>[] = [
     {
@@ -27,12 +26,14 @@ const TableList: React.FC = () => {
       search: false,
       sorter: true,
       dataIndex: 'creationTime',
+      width: 150,
     },
     {
       order: 95,
       title: l('UserName'),
       dataIndex: 'userName',
       sorter: true,
+      width: 120,
     },
     {
       order: 94,
@@ -42,6 +43,7 @@ const TableList: React.FC = () => {
       search: {
         transform: (value: any) => ({ actionName: value }),
       },
+      width: 120,
     },
     {
       order: 93,
@@ -49,29 +51,34 @@ const TableList: React.FC = () => {
       dataIndex: 'ClientId',
       hideInTable: true,
       sorter: true,
+      width: 120,
     },
     {
       title: l('ClientIpAddress'),
       dataIndex: 'clientIpAddress',
       search: false,
+      width: 120,
     },
     {
       title: l('BrowserInfo'),
       dataIndex: 'browserInfo',
       ellipsis: true,
       search: false,
+      width: 120,
     },
     {
       order: 97,
       title: l('ApplicationName'),
       dataIndex: 'applicationName',
       sorter: true,
+      width: 120,
     },
     {
       order: 96,
       title: l('Identity'),
       dataIndex: 'identity',
       sorter: true,
+      width: 120,
     },
     {
       order: 92,
