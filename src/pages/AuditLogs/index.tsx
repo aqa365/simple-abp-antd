@@ -3,8 +3,11 @@ import { Tag, Button, Descriptions, Modal, Tabs, message, Collapse } from 'antd'
 import { FileSearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
+import ReactJson from 'react-json-view';
+
 import { getAuditLogById, getAuditLogs } from '@/services/simple-abp/audit-log-service';
 import simpleAbp from '@/utils/simple-abp';
+
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
 function jsonFormat(format: string) {
@@ -314,7 +317,7 @@ const TableList: React.FC = () => {
                 {auditLog?.comments}
               </Descriptions.Item>
               <Descriptions.Item label={l('Extraproperties')} span={2}>
-                {auditLog?.extraProperties.toString()}
+                <ReactJson src={auditLog?.extraProperties || {}} name={l('Extraproperties')} />
               </Descriptions.Item>
             </Descriptions>
           </TabPane>
@@ -327,11 +330,7 @@ const TableList: React.FC = () => {
                       {l('Duration')} {c.executionDuration}ms
                     </p>
 
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: l('Parameters') + jsonFormat(c.parameters),
-                      }}
-                    ></div>
+                    <ReactJson src={eval('(' + c.parameters + ')')} name={l('Parameters')} />
                   </Panel>
                 );
               })}
