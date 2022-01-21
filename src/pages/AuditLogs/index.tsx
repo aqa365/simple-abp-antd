@@ -287,6 +287,9 @@ const TableList: React.FC = () => {
               <Descriptions.Item label={l('CorrelationId')} span={2}>
                 {auditLog?.correlationId}
               </Descriptions.Item>
+              <Descriptions.Item label={l('Exceptions')} span={2}>
+                {auditLog?.exceptions}
+              </Descriptions.Item>
               <Descriptions.Item label={l('Comments')} span={2}>
                 {auditLog?.comments}
               </Descriptions.Item>
