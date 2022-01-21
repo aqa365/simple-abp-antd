@@ -23,6 +23,8 @@ export default {
   'menu.Administration.Identity.Users': '用户',
   'menu.Administration.Identity.SecurityLogs': '安全日志',
 
+  'menu.Administration.AuditLogs': '审计日志',
+
   ...pages,
   ...globalHeader,
   ...menu,

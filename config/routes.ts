@@ -72,6 +72,11 @@
           },
         ],
       },
+      {
+        name: 'AuditLogs',
+        path: '/audit-logs',
+        component: './AuditLogs',
+      },
     ],
   },
   {

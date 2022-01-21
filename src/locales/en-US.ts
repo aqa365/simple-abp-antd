@@ -23,6 +23,8 @@ export default {
   'menu.Administration.Identity.Users': 'Users',
   'menu.Administration.Identity.SecurityLogs': 'Security Logs',
 
+  'menu.Administration.AuditLogs': 'Audit Logs',
+
   ...globalHeader,
   ...menu,
   ...settingDrawer,
