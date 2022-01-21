@@ -230,10 +230,7 @@ const TableList: React.FC = () => {
         options={false}
         search={{
           labelWidth: 120,
-
           defaultCollapsed: false,
-          searchText: l('Query'),
-          resetText: l('Reset'),
         }}
         pagination={{
           showTotal: (total) => `${total} ${l('Total')}`,
