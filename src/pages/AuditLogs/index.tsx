@@ -139,6 +139,12 @@ const TableList: React.FC = () => {
       dataIndex: 'executionTime',
     },
     {
+      title: l('ExecutionDuration'),
+      search: false,
+      sorter: true,
+      dataIndex: 'executionDuration',
+    },
+    {
       order: 97,
       title: l('UrlFilter'),
       hideInTable: true,
@@ -182,7 +188,6 @@ const TableList: React.FC = () => {
     {
       order: 92,
       title: l('ApplicationName'),
-      hideInTable: true,
       dataIndex: 'applicationName',
     },
     {
