@@ -10,33 +10,7 @@ import simpleAbp from '@/utils/simple-abp';
 
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
-function jsonFormat(format: string) {
-  let msg = '',
-    pos = 0,
-    prevChar = '',
-    outOfQuotes = true;
-  for (let i = 0; i < format.length; i++) {
-    //循环每一个字符
-    let char = format.substring(i, i + 1); //获取到该字符
-    if (char == '"' && prevChar != '\\') {
-      //如果转移
-      outOfQuotes = !outOfQuotes;
-    } else if ((char == '}' || char == ']') && outOfQuotes) {
-      //如果是关闭
-      msg += '<br/>';
-      pos--;
-      for (let j = 0; j < pos; j++) msg += '    ';
-    }
-    msg += char;
-    if ((char == ',' || char == '{' || char == '[') && outOfQuotes) {
-      msg += '<br/>';
-      if (char == '{' || char == '[') pos++;
-      for (let k = 0; k < pos; k++) msg += '    ';
-    }
-    prevChar = char;
-  }
-  return msg;
-}
+
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
 
