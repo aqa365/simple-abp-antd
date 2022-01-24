@@ -17,3 +17,17 @@ export async function getAuditLogById(id: string, options?: { [key: string]: any
     ...(options || {}),
   });
 }
+
+export async function getEntityChanges(
+  params: Simple.Abp.GetEntityChangesInput,
+  options?: { [key: string]: any },
+) {
+  return request<Simple.Abp.PagedResult<Simple.Abp.EntityChange>>(
+    `/api/audit-logging/audit-logs/entity-changes`,
+    {
+      method: 'GET',
+      params: { ...params },
+      ...(options || {}),
+    },
+  );
+}

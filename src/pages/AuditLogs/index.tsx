@@ -5,6 +5,8 @@ import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import ReactJson from 'react-json-view';
 
+import EntityChanges from './components/EntityChnanges';
+
 import { getAuditLogById, getAuditLogs } from '@/services/simple-abp/audit-log-service';
 import simpleAbp from '@/utils/simple-abp';
 
@@ -212,38 +214,46 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<Simple.Abp.AuditLog>
-        actionRef={actionRef}
-        rowKey={(d) => d.id}
-        request={async (params, sort, filter) => {
-          console.log(params);
-          console.log(filter);
-          const requestData = {
-            pageIndex: params.current,
-            pageSize: params.pageSize,
-            filter: params.userName,
-            ...params,
-          };
-          const result = await getAuditLogs(requestData);
-          return {
-            data: result.items,
-            total: result.totalCount,
-            success: true,
-          };
-        }}
-        columns={columns}
-        options={false}
-        search={{
-          labelWidth: 120,
-          defaultCollapsed: false,
-        }}
-        pagination={{
-          showTotal: (total) => `${total} ${l('Total')}`,
-          locale: {
-            items_per_page: l('Entries'),
-          },
-        }}
-      />
+      <Tabs>
+        <TabPane tab={l('AuditLogs')} key="AuditLogs">
+          <ProTable<Simple.Abp.AuditLog>
+            actionRef={actionRef}
+            rowKey={(d) => d.id}
+            request={async (params, sort, filter) => {
+              console.log(params);
+              console.log(filter);
+              const requestData = {
+                pageIndex: params.current,
+                pageSize: params.pageSize,
+                filter: params.userName,
+                ...params,
+              };
+              const result = await getAuditLogs(requestData);
+              return {
+                data: result.items,
+                total: result.totalCount,
+                success: true,
+              };
+            }}
+            columns={columns}
+            options={false}
+            search={{
+              labelWidth: 120,
+              defaultCollapsed: false,
+            }}
+            pagination={{
+              showTotal: (total) => `${total} ${l('Total')}`,
+              locale: {
+                items_per_page: l('Entries'),
+              },
+            }}
+          />
+        </TabPane>
+        <TabPane tab={l('EntityChanges')} key="EntityChanges">
+          <EntityChanges simpleAbpUtils={simpleAbpUtils} />
+        </TabPane>
+      </Tabs>
+
       <Modal
         centered
         title={l('Detail')}
@@ -257,7 +267,7 @@ const TableList: React.FC = () => {
         }}
       >
         <Tabs defaultActiveKey="1" style={{ height: 500, overflowY: 'scroll' }}>
-          <TabPane tab={l('Overall')} key="1">
+          <TabPane tab={l('Overall')} key="Overall">
             <Descriptions
               bordered
               layout="vertical"
@@ -300,7 +310,7 @@ const TableList: React.FC = () => {
               </Descriptions.Item>
             </Descriptions>
           </TabPane>
-          <TabPane tab={l('Actions')} key="2">
+          <TabPane tab={l('Actions')} key="Actions">
             <Collapse defaultActiveKey={['1']}>
               {auditLog?.actions.map((c) => {
                 return (

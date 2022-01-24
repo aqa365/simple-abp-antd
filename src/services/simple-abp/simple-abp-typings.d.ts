@@ -151,6 +151,20 @@ namespace Simple.Abp {
     extraProperties: {};
   };
 
+  type GetEntityChangesInput = {
+    startTime?: string;
+    endTime?: string;
+    url?: string;
+    userName?: string;
+    applicationName?: string;
+    correlationId?: string;
+    httpMethod?: string;
+    httpStatusCode?: number;
+    maxExecutionDuration?: number;
+    minExecutionDuration?: number;
+    hasException?: boolean;
+  } & Simple.Abp.PageRequest;
+
   type EntityChange = {
     extraProperties: {};
     id: string;
