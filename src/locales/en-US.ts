@@ -25,6 +25,11 @@ export default {
 
   'menu.Administration.AuditLogs': 'Audit Logs',
 
+  'menu.Articles': 'Articles Management',
+  'menu.Articles.Article': 'Article',
+  'menu.Articles.Catalog': 'Catalog',
+  'menu.Articles.Tag': 'Tag',
+
   ...globalHeader,
   ...menu,
   ...settingDrawer,

@@ -148,6 +148,7 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
         width={640}
         title={props.title}
         visible={props.modalVisible}
+        modalProps={{ centered: true }}
         submitter={{
           searchConfig: {
             submitText: l('Save'),

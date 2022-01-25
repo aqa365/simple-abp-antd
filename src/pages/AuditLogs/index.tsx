@@ -5,7 +5,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import ReactJson from 'react-json-view';
 
-import EntityChanges from './components/EntityChnanges';
+import EntityChanges from './components/EntityChanges';
 
 import { getAuditLogById, getAuditLogs } from '@/services/simple-abp/audit-log-service';
 import simpleAbp from '@/utils/simple-abp';

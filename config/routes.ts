@@ -33,38 +33,40 @@
     path: '/',
     redirect: '/welcome',
   },
-
   {
     name: 'Administration',
     icon: 'setting',
+    path: '/administration',
     routes: [
+      { path: '/administration', redirect: 'audit-logs' },
       {
         name: 'Identity',
-        path: '/identity',
+        path: '/administration/identity',
         routes: [
+          { path: '/administration/identity', redirect: 'users' },
           {
-            path: '/identity/organization-units',
+            path: 'organization-units',
             name: 'OrganizationUnits',
             component: './identityManagement/OrganizationUnits',
             permission: 'AbpIdentity.OrganizationUnits',
             access: 'isGranted',
           },
           {
-            path: '/identity/roles',
+            path: 'roles',
             name: 'Roles',
             component: './identityManagement/Roles',
             permission: 'AbpIdentity.Roles',
             access: 'isGranted',
           },
           {
-            path: '/identity/users',
+            path: 'users',
             name: 'Users',
             component: './identityManagement/Users',
             permission: 'AbpIdentity.Users',
             access: 'isGranted',
           },
           {
-            path: '/identity/security-logs',
+            path: 'security-logs',
             name: 'SecurityLogs',
             component: './identityManagement/SecurityLogs',
             permission: 'AbpIdentity.SecurityLogs',
@@ -74,8 +76,37 @@
       },
       {
         name: 'AuditLogs',
-        path: '/audit-logs',
+        path: 'audit-logs',
         component: './AuditLogs',
+      },
+    ],
+  },
+  {
+    exact: false,
+    name: 'Articles',
+    icon: 'ReadOutlined',
+    path: '/articles',
+    routes: [
+      {
+        name: 'Article',
+        path: '/articles/article',
+        component: './articles/Article',
+        permission: 'Articles.Article',
+        access: 'isGranted',
+      },
+      {
+        name: 'Catalog',
+        path: '/articles/catalog',
+        component: './articles/Catalog',
+        permission: 'Articles.Article',
+        access: 'isGranted',
+      },
+      {
+        name: 'Tag',
+        path: '/articles/tag',
+        component: './articles/Tag',
+        permission: 'Articles.Article',
+        access: 'isGranted',
       },
     ],
   },

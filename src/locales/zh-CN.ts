@@ -25,6 +25,11 @@ export default {
 
   'menu.Administration.AuditLogs': '审计日志',
 
+  'menu.Articles': '文章管理',
+  'menu.Articles.Article': '文章',
+  'menu.Articles.Catalog': '类别',
+  'menu.Articles.Tag': '标签',
+
   ...pages,
   ...globalHeader,
   ...menu,
