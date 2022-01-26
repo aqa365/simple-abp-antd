@@ -1,9 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { Menu, Dropdown, Button } from 'antd';
+import { Menu, Dropdown, Button, Modal, message } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import { PlusOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
-import { getCatalogs } from '@/services/simple-abp/articles/catalog-service';
+import {
+  PlusOutlined,
+  SettingOutlined,
+  DownOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
+import { deleteCatalog, getCatalogs } from '@/services/simple-abp/articles/catalog-service';
 import simpleAbp from '@/utils/simple-abp';
 
 import EditCatalogForm from './components/EditCatalogForm';
@@ -31,13 +36,37 @@ const TableList: React.FC = () => {
     handleEditModalVisible(true);
   };
 
+  const handleDelete = async (row: Articles.Catalog) => {
+    Modal.confirm({
+      title: l('AreYouSure'),
+      icon: <ExclamationCircleOutlined />,
+      content: l('DetetCatalog', row.title),
+      okText: l('Delete'),
+      cancelText: l('Cancel'),
+      onOk: async () => {
+        const hide = message.loading(l('ProcessingWithThreeDot'), 0);
+        try {
+          await deleteCatalog(row.id);
+          message.success(l('SuccessfullyDeleted'));
+          actionRef.current?.reload();
+        } catch (error) {
+          console.error(error);
+        } finally {
+          hide();
+        }
+      },
+    });
+  };
+
   const actionDom = (row: Articles.Catalog) => {
     return (
       <Menu key={row.id + 'menu'}>
         <Menu.Item key={row.id + 'Edit'} onClick={async () => await handleEditCatalog(row)}>
           {l('Edit')}
         </Menu.Item>
-        <Menu.Item key={row.id + 'Delete'}>{l('Delete')}</Menu.Item>
+        <Menu.Item key={row.id + 'Delete'} onClick={() => handleDelete(row)}>
+          {l('Delete')}
+        </Menu.Item>
       </Menu>
     );
   };
