@@ -87,6 +87,7 @@
     icon: 'ReadOutlined',
     path: '/articles',
     routes: [
+      { path: '/articles', redirect: 'article' },
       {
         name: 'Article',
         path: '/articles/article',

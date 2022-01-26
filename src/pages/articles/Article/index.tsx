@@ -5,6 +5,7 @@ import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import { PlusOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
 import { getArticles } from '@/services/simple-abp/articles/article-service';
 import simpleAbp from '@/utils/simple-abp';
+import EditArticleForm from './components/EditArticleForm';
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -14,7 +15,7 @@ const TableList: React.FC = () => {
   const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('AbpIdentity');
+  const l = simpleAbpUtils.localization.getResource('SimpleAbpArticles');
   const g = simpleAbpUtils.auth.isGranted;
 
   const handleEditArticle = async (row: Articles.Article) => {
@@ -32,7 +33,7 @@ const TableList: React.FC = () => {
   const actionDom = (row: Articles.Article) => {
     return (
       <Menu key={row.id + 'menu'}>
-        <Menu.Item key={row.id + 'EditUser'} onClick={async () => await handleEditArticle(row)}>
+        <Menu.Item key={row.id + 'Edit'} onClick={async () => await handleEditArticle(row)}>
           {l('Edit')}
         </Menu.Item>
         <Menu.Item key={row.id + 'Delete'}>{l('Delete')}</Menu.Item>
@@ -121,6 +122,20 @@ const TableList: React.FC = () => {
             <PlusOutlined /> {l('NewArticle')}
           </Button>,
         ]}
+      />
+      <EditArticleForm
+        params={{
+          id: editId,
+          title: editModalTitle,
+          isModalVisible: editModalVisible,
+          onCancel: () => {
+            handleEditModalVisible(false);
+          },
+          onSubmit: () => {
+            handleEditModalVisible(false);
+          },
+        }}
+        simpleAbpUtils={simpleAbpUtils}
       />
     </PageContainer>
   );

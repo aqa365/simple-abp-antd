@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { message, Form } from 'antd';
-import { ModalForm, ProFormText, ProFormTreeSelect } from '@ant-design/pro-form';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import {
-  getCatalogAll,
   getCatalog,
   createCatalog,
   updateCatalog,
 } from '@/services/simple-abp/articles/catalog-service';
-import { convertToArticleCatalogTreeSelect } from '@/utils/tree';
+import SelectCatalog from './SelectCatalog';
 
 export type EditCatalogFormProps = {
   params: {
@@ -22,7 +21,7 @@ export type EditCatalogFormProps = {
 const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
   const params = props.params;
   const [form] = Form.useForm();
-  const l = props.simpleAbpUtils.localization.getResource('AbpAuditLogging');
+  const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,28 +102,7 @@ const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
         placeholder={l('EnterYourFiled', l('Description').toLowerCase())}
       />
       <ProFormText name="id" hidden />
-      <ProFormTreeSelect
-        name="parentId"
-        placeholder="Please select"
-        allowClear
-        secondary
-        request={async () => {
-          const catatlogAll = await getCatalogAll();
-          const treeData = convertToArticleCatalogTreeSelect(null, catatlogAll, params.id);
-          return treeData;
-        }}
-        // tree-select args
-        fieldProps={{
-          showArrow: false,
-          dropdownMatchSelectWidth: false,
-          treeDefaultExpandAll: true,
-          treeLine: { showLeafIcon: false },
-          labelInValue: true,
-          fieldNames: {
-            value: 'value',
-          },
-        }}
-      />
+      <SelectCatalog params={{ disabledId: params.id, name: 'parentId' }} />
     </ModalForm>
   );
 };

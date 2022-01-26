@@ -1,41 +1,102 @@
-import React, { useState, useRef } from 'react';
-import { Menu, Dropdown, Button } from 'antd';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, Dropdown, Button, Form, Modal, message } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import { PlusOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
-import { getTags } from '@/services/simple-abp/articles/tag-service';
+import {
+  PlusOutlined,
+  SettingOutlined,
+  DownOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import {
+  getTags,
+  createTag,
+  updateTag,
+  deleteTag,
+} from '@/services/simple-abp/articles/tag-service';
 import simpleAbp from '@/utils/simple-abp';
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
+  const [form] = Form.useForm();
 
-  const [editId, handleEditId] = useState<string>('');
+  const [editModel, handleEditModel] = useState<Articles.Tag>();
   const [editModalTitle, handleEditModalTitle] = useState<string>('');
   const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('AbpIdentity');
+  const l = simpleAbpUtils.localization.getResource('SimpleAbpArticles');
   const g = simpleAbpUtils.auth.isGranted;
 
-  const handleEditTag = async (row: Articles.Article) => {
+  useEffect(() => {
+    const setData = () => {
+      if (editModalVisible) {
+        form.setFieldsValue(editModel);
+      }
+    };
+
+    setData();
+  }, [editModalVisible]);
+
+  const handleEditTag = async (row: Articles.Tag) => {
     handleEditModalTitle(l('Edit'));
-    handleEditId(row.id);
+    handleEditModel(row);
     handleEditModalVisible(true);
   };
 
   const handleCreateTag = () => {
     handleEditModalTitle(l('NewTag'));
-    handleEditId('');
+    handleEditModel(undefined);
     handleEditModalVisible(true);
+  };
+
+  const handleSubmit = async (values: Articles.Tag) => {
+    const hide = message.loading(l('SavingWithThreeDot'), 0);
+    try {
+      editModel?.id ? await updateTag(values.id, values) : await createTag(values);
+      message.success(l('SavedSuccessfully'));
+      actionRef.current?.reload();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    } finally {
+      hide();
+    }
+  };
+
+  const handleDelete = async (row: Articles.Tag) => {
+    Modal.confirm({
+      title: l('AreYouSure'),
+      icon: <ExclamationCircleOutlined />,
+      content: l('DetetCatalog', row.name),
+      okText: l('Delete'),
+      cancelText: l('Cancel'),
+      onOk: async () => {
+        const hide = message.loading(l('ProcessingWithThreeDot'), 0);
+        try {
+          await deleteTag(row.id);
+          message.success(l('SuccessfullyDeleted'));
+          actionRef.current?.reload();
+        } catch (error) {
+          console.error(error);
+        } finally {
+          hide();
+        }
+      },
+    });
   };
 
   const actionDom = (row: Articles.Tag) => {
     return (
       <Menu key={row.id + 'menu'}>
-        <Menu.Item key={row.id + 'EditUser'} onClick={async () => await handleEditTag(row)}>
+        <Menu.Item key={row.id + 'EditUser'} onClick={() => handleEditTag(row)}>
           {l('Edit')}
         </Menu.Item>
-        <Menu.Item key={row.id + 'Delete'}>{l('Delete')}</Menu.Item>
+        <Menu.Item key={row.id + 'Delete'} onClick={() => handleDelete(row)}>
+          {l('Delete')}
+        </Menu.Item>
       </Menu>
     );
   };
@@ -100,6 +161,45 @@ const TableList: React.FC = () => {
           </Button>,
         ]}
       />
+
+      <ModalForm<Articles.Tag>
+        title={editModalTitle}
+        form={form}
+        modalProps={{ centered: true }}
+        visible={editModalVisible}
+        width={640}
+        submitter={{
+          searchConfig: {
+            submitText: l('Save'),
+            resetText: l('Cancel'),
+          },
+        }}
+        onVisibleChange={(visible) => {
+          if (visible) {
+            form.resetFields();
+            return;
+          }
+          handleEditModalVisible(false);
+        }}
+        onFinish={async (values) => {
+          await handleSubmit(values);
+          handleEditModalVisible(false);
+        }}
+      >
+        <ProFormText
+          name="name"
+          label={l('Name')}
+          placeholder={l('EnterYourFiled', l('Name').toLowerCase())}
+          rules={[
+            {
+              required: true,
+              message: l('The {0} field is required.', l('Name')),
+              whitespace: true,
+            },
+          ]}
+        />
+        <ProFormText name="id" hidden />
+      </ModalForm>
     </PageContainer>
   );
 };

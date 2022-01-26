@@ -21,7 +21,7 @@ const TableList: React.FC = () => {
   const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('AbpIdentity');
+  const l = simpleAbpUtils.localization.getResource('SimpleAbpArticles');
   const g = simpleAbpUtils.auth.isGranted;
 
   const handleEditCatalog = async (row: Articles.Article) => {
