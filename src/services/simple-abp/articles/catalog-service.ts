@@ -38,7 +38,7 @@ export async function updateCatalog(
   body: Articles.Catalog,
   options?: { [key: string]: any },
 ) {
-  return request<Articles.Catalog>(`/api/identity/roles/${id}`, {
+  return request<Articles.Catalog>(`/api/articles/catalog/${id}`, {
     method: 'PUT',
     data: body,
     ...(options || {}),
@@ -46,7 +46,7 @@ export async function updateCatalog(
 }
 
 export async function deleteCatalog(id: string, options?: { [key: string]: any }) {
-  return request<any>(`/api/identity/roles/${id}`, {
+  return request<any>(`/api/articles/catalog/${id}`, {
     method: 'DELETE',
     //params: { ...params },
     ...(options || {}),

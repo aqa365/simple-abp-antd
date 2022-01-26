@@ -44,6 +44,9 @@ const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
   const handleEdit = async (values: Articles.Catalog) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
+      if (values.parentId) {
+        values.parentId = values.parentId['value'];
+      }
       values.id ? await updateCatalog(values.id, values) : await createCatalog(values);
       message.success(l('SavedSuccessfully'));
       return true;
@@ -107,36 +110,21 @@ const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
         secondary
         request={async () => {
           const catatlogAll = await getCatalogAll();
-          const treeData = convertToArticleCatalogTreeSelect(null, catatlogAll);
+          const treeData = convertToArticleCatalogTreeSelect(null, catatlogAll, params.id);
           return treeData;
         }}
         // tree-select args
         fieldProps={{
           showArrow: false,
-          filterTreeNode: true,
-          showSearch: true,
           dropdownMatchSelectWidth: false,
+          treeDefaultExpandAll: true,
+          treeLine: { showLeafIcon: false },
           labelInValue: true,
-          autoClearSearchValue: true,
-          //   treeNodeFilterProp: 'value',
-          //   fieldNames: {
-          //     label: 'title',
-          //   },
+          fieldNames: {
+            value: 'value',
+          },
         }}
       />
-      {/* <Tree
-        showIcon
-        showLine={{ showLeafIcon: false }}
-        blockNode
-        defaultExpandAll
-        switcherIcon={<DownOutlined />}
-        treeData={treeData}
-        draggable
-        checkable
-        onSelect={(selectKeys, info) => {
-          //handleClick(info.node.key.toString());
-        }}
-      /> */}
     </ModalForm>
   );
 };

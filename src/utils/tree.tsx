@@ -33,13 +33,15 @@ export function convertToArticleCatalogTree(
 export function convertToArticleCatalogTreeSelect(
   id: string | null,
   data: Articles.Catalog[],
+  disabledById?: string,
 ): any {
   const children = data.filter((c) => c.parentId == id);
   return children.map((c) => {
     return {
-      title: c.title,
+      label: c.title,
       value: c.id,
-      children: convertToArticleCatalogTreeSelect(c.id, data),
+      disabled: disabledById === c.id || disabledById === c.parentId,
+      children: convertToArticleCatalogTreeSelect(c.id, data, disabledById),
     };
   });
 }
