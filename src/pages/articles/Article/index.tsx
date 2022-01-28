@@ -133,6 +133,7 @@ const TableList: React.FC = () => {
           },
           onSubmit: () => {
             handleEditModalVisible(false);
+            actionRef.current?.reload();
           },
         }}
         simpleAbpUtils={simpleAbpUtils}

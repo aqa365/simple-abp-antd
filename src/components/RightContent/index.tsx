@@ -47,7 +47,7 @@ const GlobalHeaderRight: React.FC = () => {
                     key={'languages' + index}
                     onClick={() => {
                       simpleLanguage.setLanguage(item.cultureName);
-                      setLocale(simpleLanguage.convertCultureNameToLocaleKey(item?.cultureName));
+                      setLocale(simpleLanguage.convertToAntdLanguage(item?.cultureName));
                     }}
                   >
                     <Avatar

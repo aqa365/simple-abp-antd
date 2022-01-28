@@ -20,6 +20,10 @@ export type EditCatalogFormProps = {
 };
 const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
   const params = props.params;
+  if (!params.isModalVisible) {
+    return <></>;
+  }
+
   const [form] = Form.useForm();
   const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
 
@@ -43,9 +47,6 @@ const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
   const handleEdit = async (values: Articles.Catalog) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      if (values.parentId) {
-        values.parentId = values.parentId['value'];
-      }
       values.id ? await updateCatalog(values.id, values) : await createCatalog(values);
       message.success(l('SavedSuccessfully'));
       return true;
@@ -102,7 +103,12 @@ const EditCatalogForm: React.FC<EditCatalogFormProps> = (props) => {
         placeholder={l('EnterYourFiled', l('Description').toLowerCase())}
       />
       <ProFormText name="id" hidden />
-      <SelectCatalog params={{ disabledId: params.id, name: 'parentId' }} />
+      <SelectCatalog
+        params={{
+          name: 'parentId',
+          disabledId: params.id,
+        }}
+      />
     </ModalForm>
   );
 };

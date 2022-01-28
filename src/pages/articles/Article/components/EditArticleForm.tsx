@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { message, Form } from 'antd';
 import {
   ModalForm,
   ProFormText,
+  ProFormSelect,
   ProFormTextArea,
   ProFormSwitch,
   ProFormDigit,
@@ -13,9 +14,11 @@ import {
   createArticle,
   updateArticle,
 } from '@/services/simple-abp/articles/article-service';
+import {} from '@/services/simple-abp/articles/tag-service';
 import SelectCatalog from '@/pages/articles/Catalog/components/SelectCatalog';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import 'braft-editor/dist/index.css';
+import BraftEditor from 'braft-editor';
+import simpleLanguage from '@/utils/simple-language';
 
 export type EditArticleFormProps = {
   params: {
@@ -27,17 +30,39 @@ export type EditArticleFormProps = {
   };
   simpleAbpUtils: Utils.ISimpleAbpUtils;
 };
+
 const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
   const params = props.params;
   const [form] = Form.useForm();
+  const [editor, setEditor] = useState<any>({
+    state: BraftEditor.createEditorState(null),
+  });
   const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
 
-  const handleEdit = async (values: Articles.Catalog) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!params.isModalVisible) {
+        return;
+      }
+
+      if (params.id) {
+        const hide = message.loading(l('LoadingWithThreeDot'), 0);
+        const articleDetail = await getArticle(params.id);
+        form.setFieldsValue(articleDetail);
+        setEditor({
+          state: BraftEditor.createEditorState(articleDetail.content),
+        });
+        hide();
+      }
+    };
+
+    fetchData();
+  }, [params]);
+
+  const handleEdit = async (values: Articles.Article) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      if (values.parentId) {
-        values.parentId = values.parentId['value'];
-      }
+      values['content'] = editor.state.toHTML();
       values.id ? await updateArticle(values.id, values) : await createArticle(values);
       message.success(l('SavedSuccessfully'));
       return true;
@@ -47,6 +72,13 @@ const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
     } finally {
       hide();
     }
+  };
+
+  const handleEeditorChange = (editorState: any) => {
+    setEditor({
+      state: editorState,
+      outputHTML: editorState.toHTML(),
+    });
   };
 
   return (
@@ -115,6 +147,24 @@ const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
             },
           ]}
         />
+        <ProFormSelect
+          name="tag"
+          label={l('Tag')}
+          request={async () => [
+            { label: '全部', value: 'all' },
+            { label: '未解决', value: 'open' },
+            { label: '已解决', value: 'closed' },
+            { label: '解决中', value: 'processing' },
+          ]}
+          placeholder={l('EnterYourFiled', l('Tag').toLowerCase())}
+          rules={[
+            {
+              required: true,
+              message: l('The {0} field is required.', l('Tag')),
+              whitespace: true,
+            },
+          ]}
+        />
         <ProFormTextArea
           name="summary"
           label={l('Summary')}
@@ -133,10 +183,13 @@ const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
             defaultValue: 0,
           }}
         />
-        <ReactQuill theme="snow" />
+        <BraftEditor
+          language={simpleLanguage.convertToBraftEditorLanguage()}
+          value={editor.state}
+          onChange={handleEeditorChange}
+        />
       </div>
     </ModalForm>
   );
 };
-
 export default EditArticleForm;
