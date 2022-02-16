@@ -8,6 +8,13 @@ export async function getTags(params: Simple.Abp.PageRequest, options?: { [key: 
   });
 }
 
+export async function getTagAll(options?: { [key: string]: any }) {
+  return request<Articles.Tag[]>(`/api/articles/tag/all`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 export async function createTag(body: Articles.Tag, options?: { [key: string]: any }) {
   return request<Articles.Tag>('/api/articles/tag', {
     method: 'POST',

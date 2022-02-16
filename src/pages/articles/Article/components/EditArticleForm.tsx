@@ -14,11 +14,12 @@ import {
   createArticle,
   updateArticle,
 } from '@/services/simple-abp/articles/article-service';
-import {} from '@/services/simple-abp/articles/tag-service';
+import { getTagAll } from '@/services/simple-abp/articles/tag-service';
 import SelectCatalog from '@/pages/articles/Catalog/components/SelectCatalog';
+import simpleLanguage from '@/utils/simple-language';
+import { uploads } from '@/services/simple-abp/simple-abp-cloud-storage';
 import 'braft-editor/dist/index.css';
 import BraftEditor from 'braft-editor';
-import simpleLanguage from '@/utils/simple-language';
 
 export type EditArticleFormProps = {
   params: {
@@ -135,27 +136,21 @@ const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
           ]}
         />
         <SelectCatalog params={{ name: 'catalogId' }} />
-        <ProFormText
-          name="tag"
-          label={l('Tag')}
-          placeholder={l('EnterYourFiled', l('Tag').toLowerCase())}
-          rules={[
-            {
-              required: true,
-              message: l('The {0} field is required.', l('Tag')),
-              whitespace: true,
-            },
-          ]}
-        />
         <ProFormSelect
           name="tag"
           label={l('Tag')}
-          request={async () => [
-            { label: '全部', value: 'all' },
-            { label: '未解决', value: 'open' },
-            { label: '已解决', value: 'closed' },
-            { label: '解决中', value: 'processing' },
-          ]}
+          showSearch
+          request={async () => {
+            const tags = await getTagAll();
+            const labels = tags.map((c) => {
+              return {
+                label: c.name,
+                value: c.name,
+              };
+            });
+            console.log(labels);
+            return labels;
+          }}
           placeholder={l('EnterYourFiled', l('Tag').toLowerCase())}
           rules={[
             {
@@ -187,6 +182,28 @@ const EditArticleForm: React.FC<EditArticleFormProps> = (props) => {
           language={simpleLanguage.convertToBraftEditorLanguage()}
           value={editor.state}
           onChange={handleEeditorChange}
+          media={{
+            uploadFn: (param) => {
+              const formData = new FormData();
+              formData.append('file', param.file);
+              uploads(formData)
+                .then((url) => {
+                  param.success({
+                    url: url,
+                    meta: {
+                      id: url,
+                      title: param.file.name,
+                      alt: param.file.name,
+                      loop: false, // 指定音视频是否循环播放
+                      autoPlay: false, // 指定音视频是否自动播放
+                      controls: false, // 指定音视频是否显示控制栏
+                      poster: '', // 指定视频播放器的封面
+                    },
+                  });
+                })
+                .catch((error) => {});
+            },
+          }}
         />
       </div>
     </ModalForm>
