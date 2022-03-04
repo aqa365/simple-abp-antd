@@ -1,4 +1,6 @@
 namespace Articles {
+  interface Test {}
+
   type GetArticlesInput = {
     catalogTitle?: string;
     tagName?: string;

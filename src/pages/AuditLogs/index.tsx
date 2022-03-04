@@ -7,7 +7,8 @@ import ReactJson from 'react-json-view';
 
 import EntityChanges from './components/EntityChanges';
 
-import { getAuditLogById, getAuditLogs } from '@/services/simple-abp/audit-log-service';
+import { AuditLogDto } from '@/services/audit-logging/dtos/AuditLogDto';
+import auditLogsService from '@/services/audit-logging/audit-logs-service';
 import simpleAbp from '@/utils/simple-abp';
 
 const { TabPane } = Tabs;
@@ -20,17 +21,17 @@ const TableList: React.FC = () => {
   const l = simpleAbpUtils.localization.getResource('AbpAuditLogging');
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [auditLog, setAuditLog] = useState<Simple.Abp.AuditLog>();
+  const [auditLog, setAuditLog] = useState<AuditLogDto>();
 
   const handleShowDetail = async (id: string) => {
     const hide = message.loading(l('LoadingWithThreeDot'), 0);
-    const result = await getAuditLogById(id);
+    const result = await auditLogsService.get(id);
     setAuditLog(result);
     hide();
     setIsModalVisible(true);
   };
 
-  const columns: ProColumns<Simple.Abp.AuditLog>[] = [
+  const columns: ProColumns<AuditLogDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -216,19 +217,19 @@ const TableList: React.FC = () => {
     <PageContainer>
       <Tabs>
         <TabPane tab={l('AuditLogs')} key="AuditLogs">
-          <ProTable<Simple.Abp.AuditLog>
+          <ProTable<AuditLogDto>
             actionRef={actionRef}
             rowKey={(d) => d.id}
             request={async (params, sort, filter) => {
               console.log(params);
               console.log(filter);
-              const requestData = {
+              const requestData: any = {
                 pageIndex: params.current,
                 pageSize: params.pageSize,
                 filter: params.userName,
                 ...params,
               };
-              const result = await getAuditLogs(requestData);
+              const result = await auditLogsService.getList(requestData);
               return {
                 data: result.items,
                 total: result.totalCount,

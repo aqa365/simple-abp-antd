@@ -3,12 +3,9 @@ import { Button, message, Modal, Alert } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { WaterMark } from '@ant-design/pro-layout';
 import { PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { getRoles } from '@/services/simple-abp/identity/role-service';
-import {
-  getOrganizationUnitRoles,
-  deleteOrganizationUnitRole,
-  updateOrganizationUnitRoles,
-} from '@/services/simple-abp/identity/organization-unit-service';
+import { IdentityRoleDto } from '@/services/identity/dtos/IdentityRoleDto';
+import roleService from '@/services/identity/identity-role-service';
+import organizationUnitService from '@/services/identity/organization-unit-service';
 
 export type EditRolesProps = {
   params: {
@@ -28,7 +25,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingSave, setLoadingSaveLoading] = useState<boolean>(false);
 
-  const [roles, setRoles] = useState<Identity.IdentityRole[]>();
+  const [roles, setRoles] = useState<IdentityRoleDto[]>();
   const [selectRoleIds, setSelectRoleIds] = useState<any>();
 
   useEffect(() => {
@@ -43,14 +40,14 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
   const loadData = async () => {
     setLoading(true);
 
-    const result = await getOrganizationUnitRoles(params.organizationUnitId, {
-      pageIndex: 1,
-      pageSize: 1000,
+    const result = await organizationUnitService.getRoles(params.organizationUnitId, {
+      skipCount: 0,
+      maxResultCount: 1000,
     });
 
     setLoading(false);
     setRoles(result.items);
-    setSelectRoleIds(result.items.map((c) => c.id));
+    setSelectRoleIds(result.items?.map((c) => c.id));
   };
 
   const addRoles = () => {
@@ -60,7 +57,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
   const handleAddRoles = async () => {
     setLoadingSaveLoading(true);
     try {
-      await updateOrganizationUnitRoles(params.organizationUnitId, { roleIds: selectRoleIds });
+      await organizationUnitService.addRoles(params.organizationUnitId, { roleIds: selectRoleIds });
       message.success(l('SavedSuccessfully'));
       setIsModalVisible(false);
       loadData();
@@ -83,7 +80,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
         const hide = message.loading(l('ProcessingWithThreeDot'), 0);
 
         try {
-          await deleteOrganizationUnitRole(params.organizationUnitId, id);
+          await organizationUnitService.removeRole(params.organizationUnitId, id);
           message.success(l('SuccessfullyDeleted'));
           await loadData();
         } catch (error) {
@@ -95,7 +92,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
     });
   };
 
-  const columns: ProColumns<Identity.IdentityRole>[] = [
+  const columns: ProColumns<IdentityRoleDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -115,7 +112,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
     },
   ];
 
-  const selectRoleColumns: ProColumns<Identity.IdentityRole>[] = [
+  const selectRoleColumns: ProColumns<IdentityRoleDto>[] = [
     {
       title: l('DisplayName:RoleName'),
       sorter: true,
@@ -129,7 +126,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
 
   return (
     <>
-      <ProTable<Identity.IdentityRole>
+      <ProTable<IdentityRoleDto>
         rowKey={(d) => d.id}
         columns={columns}
         search={false}
@@ -166,7 +163,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
         ]}
       >
         <WaterMark content={props.simpleAbpUtils.currentUser.getWaterMark()}>
-          <ProTable<Identity.IdentityRole>
+          <ProTable<IdentityRoleDto>
             rowKey={(d) => d.id}
             columns={selectRoleColumns}
             rowSelection={{
@@ -195,7 +192,7 @@ const EditRoles: React.FC<EditRolesProps> = (props) => {
                 pageSize: params.pageSize,
                 filter: params.filter,
               };
-              const result = await getRoles(requestData);
+              const result = await roleService.getList(requestData);
               return {
                 data: result.items,
                 total: result.totalCount,

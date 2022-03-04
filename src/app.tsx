@@ -8,8 +8,10 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import defaultSettings from '../config/defaultSettings';
 import Auth from './services/simple-abp/identity/auth';
-import SimpleAbpService from './services/simple-abp/simple-abp-service';
 import simpleLanguage from './utils/simple-language';
+
+import { ApplicationConfigurationDto } from '@/services/abp/dtos/ApplicationConfigurationDto';
+import abpApplicationService from '@/services/abp/abp-application-configuration-service';
 
 const loginPath = '/user/login';
 const loginCorrelationPaths = [loginPath, '/user/login-callback'];
@@ -18,12 +20,12 @@ const notAuthPaths = [...loginCorrelationPaths];
 /** 获取用户信息 */
 const getAppInfo = async () => {
   try {
-    const applicationConfiguration = await SimpleAbpService.getApplicationConfiguration();
+    const applicationConfiguration = await abpApplicationService.get();
     return applicationConfiguration;
   } catch (error) {
     Auth.removeToken();
   }
-  return undefined;
+  return null;
 };
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
@@ -36,9 +38,9 @@ export const initialStateConfig = {
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  appInfo?: Simple.Abp.ApplicationConfiguration | null;
+  appInfo?: ApplicationConfigurationDto | null | undefined;
   loading?: boolean;
-  getAppInfo?: () => Promise<Simple.Abp.ApplicationConfiguration | null | undefined>;
+  getAppInfo?: () => Promise<ApplicationConfigurationDto | null | undefined>;
 }> {
   const appInfo = await getAppInfo();
 
@@ -52,14 +54,14 @@ export async function getInitialState(): Promise<{
   const pathName = history.location.pathname;
 
   // 未登录 在不需要登录的界面
-  if (!appInfo.currentUser.isAuthenticated && notAuthPaths.indexOf(pathName) > -1) {
+  if (!appInfo.currentUser?.isAuthenticated && notAuthPaths.indexOf(pathName) > -1) {
     return {
       getAppInfo,
     };
   }
 
   // 未登录
-  if (!appInfo.currentUser.isAuthenticated) {
+  if (!appInfo.currentUser?.isAuthenticated) {
     history.push(loginPath);
     return {
       getAppInfo,
@@ -84,15 +86,15 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
     waterMarkProps: {
-      content: initialState?.appInfo?.currentUser.userName,
+      content: initialState?.appInfo?.currentUser?.userName,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
       if (
         notAuthPaths.indexOf(history.location.pathname) <= -1 &&
-        !initialState?.appInfo?.currentUser.isAuthenticated
+        !initialState?.appInfo?.currentUser?.isAuthenticated
       ) {
-        alert(initialState?.appInfo?.currentUser.userName);
+        alert(initialState?.appInfo?.currentUser?.userName);
         history.push(loginPath);
       }
     },
@@ -131,7 +133,7 @@ const authHeaderInterceptor = (url: string, options: RequestOptionsInit) => {
   authHeader[API_TOKEN_KEY] = `Bearer ${Auth.getAccessToken()}`;
 
   return {
-    url: `${API_URL}${url}`,
+    url: `${API_URL}/${url}`,
     options: { ...options, interceptors: true, headers: authHeader },
   };
 };

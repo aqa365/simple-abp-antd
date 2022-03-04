@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { FileSearchOutlined } from '@ant-design/icons';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
-import { getEntityChanges } from '@/services/simple-abp/audit-log-service';
+import { EntityChangeDto } from '@/services/audit-logging/dtos/EntityChangeDto';
+import auditLogsService from '@/services/audit-logging/audit-logs-service';
 import ReactJson from 'react-json-view';
 
 export type EntityChangesProps = {
@@ -17,7 +18,7 @@ const EntityChanges: React.FC<EntityChangesProps> = (props) => {
   const [detailTitle, setDetailTitle] = useState<any>();
   const [detailData, setDetailData] = useState<any>();
 
-  const columns: ProColumns<Simple.Abp.EntityChange>[] = [
+  const columns: ProColumns<EntityChangeDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -29,8 +30,8 @@ const EntityChanges: React.FC<EntityChangesProps> = (props) => {
           onClick={() => {
             setIsModalVisible(true);
             const properties = {};
-            record.propertyChanges.forEach((c) => {
-              properties[c.propertyName] = {
+            record?.propertyChanges?.forEach((c) => {
+              properties[c.propertyName || ''] = {
                 originalValue: c.originalValue,
                 newValue: c.newValue,
                 propertyTypeFullName: c.propertyTypeFullName,
@@ -83,18 +84,18 @@ const EntityChanges: React.FC<EntityChangesProps> = (props) => {
   ];
   return (
     <>
-      <ProTable<Simple.Abp.EntityChange>
+      <ProTable<EntityChangeDto>
         rowKey={(d) => d.id}
         request={async (params, sort, filter) => {
           console.log(params);
           console.log(filter);
-          const requestData = {
+          const requestData: any = {
             pageIndex: params.current,
             pageSize: params.pageSize,
             filter: params.userName,
             ...params,
           };
-          const result = await getEntityChanges(requestData);
+          const result = await auditLogsService.getEntityChanges(requestData);
           return {
             data: result.items,
             total: result.totalCount,

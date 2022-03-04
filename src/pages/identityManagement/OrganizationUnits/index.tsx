@@ -10,13 +10,8 @@ import {
   PlusOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
-import {
-  getAllOrganizationUnits,
-  createOrganizationUnit,
-  updateOrganizationUnit,
-  moveOrganizationUnit,
-  deleteOrganizationUnit,
-} from '@/services/simple-abp/identity/organization-unit-service';
+import { OrganizationUnitWithDetailsDto } from '@/services/identity/dtos/OrganizationUnitWithDetailsDto';
+import organizationUnitService from '@/services/identity/organization-unit-service';
 import EditMembers from './components/EditMembers';
 import EditRoles from './components/EditRoles';
 import { convertToOrganizationUnitsTree } from '@/utils/tree';
@@ -35,9 +30,9 @@ const TableList: React.FC = () => {
   const [tab, setTab] = useState('Members');
 
   const [treeData, setTreeData] = useState<any>();
-  const [allOrganizationUnits, setAllOrganizationUnits] = useState<Identity.OrganizationUnit[]>();
-  const [editOrganizationUnit, setOrganizationUnit] =
-    useState<Identity.CreateOrUpdateOrganizationUnit>();
+  const [allOrganizationUnits, setAllOrganizationUnits] =
+    useState<OrganizationUnitWithDetailsDto[]>();
+  const [editOrganizationUnit, setOrganizationUnit] = useState<any>();
 
   const [componentData, setComponentData] = useState({
     organizationUnitId: '',
@@ -47,7 +42,7 @@ const TableList: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const result = await getAllOrganizationUnits();
+      const result = await organizationUnitService.getListAll();
       setAllOrganizationUnits(result.items);
       setTreeData(convertToOrganizationUnitsTree(null, result.items, <TeamOutlined />));
     } finally {
@@ -81,11 +76,12 @@ const TableList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleSubmit = async (values: Identity.CreateOrUpdateOrganizationUnit) => {
+  const handleSubmit = async (values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      const func = values.id ? updateOrganizationUnit : createOrganizationUnit;
-      await func(values);
+      const func = values.id
+        ? await organizationUnitService.update(values.id, values)
+        : await organizationUnitService.create(values);
       message.success(l('SavedSuccessfully'));
       return true;
     } catch (error) {
@@ -104,8 +100,7 @@ const TableList: React.FC = () => {
     const dropKey = info.node.key;
 
     try {
-      await moveOrganizationUnit({
-        id: dragKey,
+      await organizationUnitService.move(dragKey, {
         newParentId: info?.dropToGap ? null : dropKey,
       });
       await loadData();
@@ -134,7 +129,7 @@ const TableList: React.FC = () => {
         const hide = message.loading(l('ProcessingWithThreeDot'), 0);
 
         try {
-          await deleteOrganizationUnit(id);
+          await organizationUnitService.delete(id);
           await loadData();
           message.success(l('SuccessfullyDeleted'));
         } catch (error) {
@@ -251,7 +246,7 @@ const TableList: React.FC = () => {
         </Col>
       </Row>
 
-      <ModalForm<Identity.CreateOrUpdateOrganizationUnit>
+      <ModalForm<any>
         form={form}
         title={modalTitle}
         visible={modalVisible}

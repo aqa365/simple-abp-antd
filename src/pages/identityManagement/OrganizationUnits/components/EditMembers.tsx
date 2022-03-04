@@ -3,12 +3,9 @@ import { Button, message, Modal, Alert } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { WaterMark } from '@ant-design/pro-layout';
 import { PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { getUsers } from '@/services/simple-abp/identity/user-service';
-import {
-  getOrganizationUnitMembers,
-  deleteOrganizationUnitMember,
-  updateOrganizationUnitMembers,
-} from '@/services/simple-abp/identity/organization-unit-service';
+import { IdentityUserDto } from '@/services/account/dtos/IdentityUserDto';
+import userService from '@/services/identity/identity-user-service';
+import organizationUnitService from '@/services/identity/organization-unit-service';
 
 export type EditMembersProps = {
   params: {
@@ -28,7 +25,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingSave, setLoadingSaveLoading] = useState<boolean>(false);
 
-  const [users, setUsers] = useState<Identity.IdentityUser[]>();
+  const [users, setUsers] = useState<IdentityUserDto[]>();
   const [selectUserIds, setSelectUserIds] = useState<any>();
 
   useEffect(() => {
@@ -44,14 +41,14 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
   const loadData = async () => {
     setLoading(true);
 
-    const result = await getOrganizationUnitMembers(params.organizationUnitId, {
+    const result = await organizationUnitService.getMembers(params.organizationUnitId, {
       pageIndex: 1,
       pageSize: 1000,
     });
 
     setLoading(false);
     setUsers(result.items);
-    setSelectUserIds(result.items.map((c) => c.id));
+    setSelectUserIds(result.items?.map((c) => c.id));
   };
 
   const addUsers = () => {
@@ -61,7 +58,9 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
   const handleAddUsers = async () => {
     setLoadingSaveLoading(true);
     try {
-      await updateOrganizationUnitMembers(params.organizationUnitId, { userIds: selectUserIds });
+      await organizationUnitService.addMembers(params.organizationUnitId, {
+        userIds: selectUserIds,
+      });
       message.success(l('SavedSuccessfully'));
       setIsModalVisible(false);
       loadData();
@@ -88,7 +87,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
         const hide = message.loading(l('ProcessingWithThreeDot'), 0);
 
         try {
-          await deleteOrganizationUnitMember(params.organizationUnitId, id);
+          await organizationUnitService.removeMember(params.organizationUnitId, id);
           message.success(l('SuccessfullyDeleted'));
           await loadData();
         } catch (error) {
@@ -100,7 +99,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
     });
   };
 
-  const columns: ProColumns<Identity.IdentityUser>[] = [
+  const columns: ProColumns<IdentityUserDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -126,7 +125,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
     },
   ];
 
-  const selectUserColumns: ProColumns<Identity.IdentityUser>[] = [
+  const selectUserColumns: ProColumns<IdentityUserDto>[] = [
     {
       title: l('UserName'),
       sorter: true,
@@ -146,7 +145,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
 
   return (
     <>
-      <ProTable<Identity.IdentityUser>
+      <ProTable<IdentityUserDto>
         rowKey={(d) => d.id}
         columns={columns}
         search={false}
@@ -183,7 +182,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
         ]}
       >
         <WaterMark content={props.simpleAbpUtils.currentUser.getWaterMark()}>
-          <ProTable<Identity.IdentityUser>
+          <ProTable<IdentityUserDto>
             rowKey={(d) => d.id}
             columns={selectUserColumns}
             rowSelection={{
@@ -212,7 +211,7 @@ const EditMembers: React.FC<EditMembersProps> = (props) => {
                 pageSize: params.pageSize,
                 filter: params.filter,
               };
-              const result = await getUsers(requestData);
+              const result = await userService.getList(requestData);
               return {
                 data: result.items,
                 total: result.totalCount,

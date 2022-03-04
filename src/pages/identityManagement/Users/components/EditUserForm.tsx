@@ -2,17 +2,11 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { Tabs, Form, message, Tree } from 'antd';
 import { ModalForm, ProFormText, ProFormCheckbox } from '@ant-design/pro-form';
 import { WaterMark } from '@ant-design/pro-layout';
-import {
-  createUser,
-  updateUser,
-  getUserById,
-  getUserRoles,
-  getUserOrganizationUnits,
-  getAssignableRoles,
-  getAvailableOrganizationUnits,
-} from '@/services/simple-abp/identity/user-service';
 import { convertToOrganizationUnitsTree } from '@/utils/tree';
 import simpleAbp from '@/utils/simple-abp';
+import { IdentityUserDto } from '@/services/account/dtos/IdentityUserDto';
+import { OrganizationUnitDto } from '@/services/identity/dtos/OrganizationUnitDto';
+import identityUserService from '@/services/identity/identity-user-service';
 
 const { TabPane } = Tabs;
 export type FormValueType = {
@@ -21,7 +15,7 @@ export type FormValueType = {
   type?: string;
   time?: string;
   frequency?: string;
-} & Partial<Identity.IdentityUser>;
+} & Partial<IdentityUserDto>;
 
 export type EditFormProps = {
   onCancel: (flag?: boolean, formVals?: FormValueType) => void;
@@ -50,15 +44,16 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
       setUserRoles([]);
       const hide = message.loading(l('LoadingWithThreeDot'), 0);
 
-      const getAssignableRolesAsync = getAssignableRoles();
-      const getAvailableOrganizationUnitsAsync = getAvailableOrganizationUnits();
+      const getAssignableRolesAsync = identityUserService.getAssignableRoles();
+      const getAvailableOrganizationUnitsAsync =
+        identityUserService.getAvailableOrganizationUnits();
 
-      var userOrganizationUnit: Identity.OrganizationUnit[] = [];
+      var userOrganizationUnit: OrganizationUnitDto[] = [];
 
       if (props.id) {
-        const getUserByIdAsync = getUserById({ id: props.id });
-        const getUserRolesAsync = getUserRoles(props.id);
-        const getUserOrganizationUnitsAsync = getUserOrganizationUnits(props.id);
+        const getUserByIdAsync = identityUserService.get(props.id);
+        const getUserRolesAsync = identityUserService.getRoles(props.id);
+        const getUserOrganizationUnitsAsync = identityUserService.getOrganizationUnits(props.id);
 
         // user info
         const userDetail = await getUserByIdAsync;
@@ -82,7 +77,7 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
             value: c.name,
             disabled:
               userOrganizationUnit.filter(
-                (f) => f.roles?.filter((rf) => rf.roleId == c.id).length > 0,
+                (f) => f.roles.filter((rf) => rf.roleId == c.id).length > 0,
               ).length > 0,
           };
         }),
@@ -99,12 +94,12 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
     fetchData();
   }, [props]);
 
-  const handleEdit = async (values: Identity.IdentityUser) => {
+  const handleEdit = async (id: string, values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     values.organizationUnitIds = userOrganizationUnitIds.checked || userOrganizationUnitIds;
     console.log(values);
     try {
-      values.id ? await updateUser({ id: values.id }, values) : await createUser(values);
+      id ? await identityUserService.update(id, values) : await identityUserService.create(values);
       message.success(l('SavedSuccessfully'));
       return true;
     } catch (error) {
@@ -143,7 +138,7 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
 
   const modalDom = () => {
     return (
-      <ModalForm<Identity.IdentityUser>
+      <ModalForm<any>
         form={form}
         width={640}
         title={props.title}
@@ -164,7 +159,7 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
           props.onCancel();
         }}
         onFinish={async (values) => {
-          const result = await handleEdit(values);
+          const result = await handleEdit(values.id, values);
           if (result) props.onSubmit();
         }}
       >
@@ -210,7 +205,7 @@ const EditUserForm: React.FC<EditFormProps> = (props) => {
                 ]}
               />
               <ProFormText
-                name="phone"
+                name="phoneNumber"
                 placeholder={l('EnterYourFiled', l('PhoneNumber').toLowerCase())}
                 label={l('PhoneNumber')}
                 rules={[

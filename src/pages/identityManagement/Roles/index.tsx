@@ -4,7 +4,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import { ModalForm, ProFormText, ProFormCheckbox } from '@ant-design/pro-form';
 import { PlusOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
-import { getRoles, createRole, updateRole } from '@/services/simple-abp/identity/role-service';
+import roleService from '@/services/identity/identity-role-service';
 import PermissionModal from '@/pages/identityManagement/Permissions/components/Permission';
 import { WaterMark } from '@ant-design/pro-layout';
 import simpleAbp from '@/utils/simple-abp';
@@ -35,17 +35,16 @@ const TableList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handlePermission = (row: Identity.IdentityRole) => {
+  const handlePermission = (row: any) => {
     setModalPermissionKey(row.name);
     setModalPermissionVisible(true);
   };
 
-  const handleSubmit = async (values: Identity.IdentityRole) => {
+  const handleSubmit = async (id: string, values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      const result = values.id
-        ? await updateRole({ id: values.id }, values)
-        : await createRole(values);
+      if (id) await roleService.update(id, values);
+      else await roleService.create(values);
       message.success(l('SavedSuccessfully'));
       return true;
     } catch (error) {
@@ -120,7 +119,7 @@ const TableList: React.FC = () => {
             pageSize: params.pageSize,
             filter: params.name,
           };
-          const result = await getRoles(requestData);
+          const result = await roleService.getList(requestData);
           return {
             data: result.items,
             total: result.totalCount,
@@ -151,7 +150,7 @@ const TableList: React.FC = () => {
         }}
       />
 
-      <ModalForm<Identity.IdentityRole>
+      <ModalForm<any>
         form={form}
         title={modalTitle}
         visible={modalVisible}
@@ -172,7 +171,7 @@ const TableList: React.FC = () => {
           setModalVisible(false);
         }}
         onFinish={async (values) => {
-          const result = await handleSubmit(values);
+          const result = await handleSubmit(values.id, values);
           if (result) {
             setModalVisible(false);
             actionRef.current?.reload();

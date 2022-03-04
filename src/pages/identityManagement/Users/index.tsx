@@ -5,7 +5,9 @@ import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import { PlusOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
 import EditUserForm from './components/EditUserForm';
 import PermissionModal from '@/pages/identityManagement/Permissions/components/Permission';
-import { getUsers } from '@/services/simple-abp/identity/user-service';
+import { GetIdentityUsersInput } from '@/services/identity/dtos/GetIdentityUsersInput';
+import { IdentityUserDto } from '@/services/account/dtos/IdentityUserDto';
+import identityUserService from '@/services/identity/identity-user-service';
 import simpleAbp from '@/utils/simple-abp';
 
 const TableList: React.FC = () => {
@@ -21,7 +23,7 @@ const TableList: React.FC = () => {
   const l = simpleAbpUtils.localization.getResource('AbpIdentity');
   const g = simpleAbpUtils.auth.isGranted;
 
-  const handleEditUser = async (row: Identity.IdentityUser) => {
+  const handleEditUser = async (row: IdentityUserDto) => {
     handleEditModalTitle(l('Edit'));
     handleEditId(row.id);
     handleEditModalVisible(true);
@@ -33,11 +35,11 @@ const TableList: React.FC = () => {
     handleEditModalVisible(true);
   };
 
-  const handlePermission = (row: Identity.IdentityUser) => {
+  const handlePermission = (row: IdentityUserDto) => {
     setModalPermissionKey(row.id);
     setModalPermissionVisible(true);
   };
-  const actionDom = (row: Identity.IdentityUser) => {
+  const actionDom = (row: IdentityUserDto) => {
     return (
       <Menu key={row.id + 'menu'}>
         <Menu.Item
@@ -73,7 +75,7 @@ const TableList: React.FC = () => {
     );
   };
 
-  const columns: ProColumns<Identity.IdentityUser>[] = [
+  const columns: ProColumns<IdentityUserDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -113,7 +115,7 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<Identity.IdentityUser>
+      <ProTable<IdentityUserDto>
         actionRef={actionRef}
         rowKey={(d) => d.id}
         request={async (params, sort, filter) => {
@@ -122,7 +124,7 @@ const TableList: React.FC = () => {
             pageSize: params.pageSize,
             filter: params.userName,
           };
-          const result = await getUsers(requestData);
+          const result = await identityUserService.getList(requestData);
           return {
             data: result.items,
             total: result.totalCount,

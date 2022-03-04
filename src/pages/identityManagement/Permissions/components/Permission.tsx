@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Divider, Checkbox, message } from 'antd';
 import { ModalForm } from '@ant-design/pro-form';
 import { WaterMark } from '@ant-design/pro-layout';
-import { getPermissions, setPermissions } from '@/services/simple-abp/identity/permission-service';
+import permissionsService from '@/services/permission-management/permissions-service';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import simpleAbp from '@/utils/simple-abp';
 
@@ -41,10 +41,7 @@ const PermissionModal: React.FC<PermissionModalProps> = (props) => {
       }
 
       const hide = message.loading(l('LoadingWithThreeDot'), 0);
-      const result = await getPermissions({
-        providerName: props.providerName,
-        providerKey: props.providerKey,
-      });
+      const result = await permissionsService.get(props.providerName, props.providerKey);
       hide();
       setPermission(result);
     };
@@ -102,13 +99,7 @@ const PermissionModal: React.FC<PermissionModalProps> = (props) => {
     );
 
     try {
-      await setPermissions(
-        {
-          providerName: props.providerName,
-          providerKey: props.providerKey,
-        },
-        body,
-      );
+      await permissionsService.update(props.providerName, props.providerKey, body);
       message.success(l('SavedSuccessfully'));
       return true;
     } catch (error) {

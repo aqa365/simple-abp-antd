@@ -1,6 +1,7 @@
+import { OrganizationUnitWithDetailsDto } from '@/services/identity/dtos/OrganizationUnitWithDetailsDto';
 export function convertToOrganizationUnitsTree(
   id: string | null,
-  data: Identity.OrganizationUnit[],
+  data: OrganizationUnitWithDetailsDto[],
   icon?: JSX.Element,
 ): any {
   const children = data.filter((c) => c.parentId == id);

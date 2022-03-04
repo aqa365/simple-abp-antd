@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import { getSecurityLogs } from '@/services/simple-abp/identity/security-log-service';
+import { IdentitySecurityLogDto } from '@/services/identity/dtos/IdentitySecurityLogDto';
+import securityLogService from '@/services/identity/identity-security-log-service';
 import simpleAbp from '@/utils/simple-abp';
 
 const TableList: React.FC = () => {
@@ -10,7 +11,7 @@ const TableList: React.FC = () => {
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
   const l = simpleAbpUtils.localization.getResource('AbpIdentity');
 
-  const columns: ProColumns<Identity.SecurityLog>[] = [
+  const columns: ProColumns<IdentitySecurityLogDto>[] = [
     {
       order: 99,
       title: l('CreationTime'),
@@ -91,7 +92,7 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<Identity.SecurityLog>
+      <ProTable<IdentitySecurityLogDto>
         actionRef={actionRef}
         rowKey={(d) => d.id}
         request={async (params, sort, filter) => {
@@ -103,7 +104,7 @@ const TableList: React.FC = () => {
             filter: params.userName,
             ...params,
           };
-          const result = await getSecurityLogs(requestData);
+          const result = await securityLogService.getList(requestData);
           return {
             data: result.items,
             total: result.totalCount,
