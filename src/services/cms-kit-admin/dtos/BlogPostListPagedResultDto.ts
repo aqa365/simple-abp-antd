@@ -1,14 +1,6 @@
+import { BlogPostListDto } from '@/services/cms-kit-admin/dtos/BlogPostListDto';
 
-
-import { BlogPostListDto } from '@/services/cms-kit-admin/dtos/BlogPostListDto'
-
-
-export interface BlogPostListPagedResultDto  {
-		
-		items?:[BlogPostListDto]
-	
-		
-		totalCount?:number
-	
-		
+export interface BlogPostListPagedResultDto {
+  items?: [BlogPostListDto];
+  totalCount?: number;
 }

@@ -1,14 +1,6 @@
+import { PageDto } from '@/services/cms-kit-admin/dtos/PageDto';
 
-
-import { PageDto } from '@/services/cms-kit-admin/dtos/PageDto'
-
-
-export interface PagePagedResultDto  {
-		
-		items?:[PageDto]
-	
-		
-		totalCount?:number
-	
-		
+export interface PagePagedResultDto {
+  items?: [PageDto];
+  totalCount?: number;
 }

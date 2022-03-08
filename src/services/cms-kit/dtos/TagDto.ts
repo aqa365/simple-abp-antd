@@ -1,15 +1,6 @@
-
-
-
-export interface TagDto  {
-	
-		entityType?:string
-	
-		
-		name?:string
-	
-		
-		concurrencyStamp?:string
-	
-		
+export interface TagDto {
+  id: string;
+  entityType: string;
+  name: string;
+  concurrencyStamp?: string;
 }
