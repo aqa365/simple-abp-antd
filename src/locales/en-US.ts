@@ -24,6 +24,7 @@ export default {
   'menu.Administration.Identity.SecurityLogs': 'Security Logs',
 
   'menu.Administration.AuditLogs': 'Audit Logs',
+  'menu.Administration.Settings': 'Settings',
 
   'menu.Cms': 'Cms',
   'menu.Cms.Pages': 'Pages',

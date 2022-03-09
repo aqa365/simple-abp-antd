@@ -1,11 +1,12 @@
 import { useModel } from 'umi';
-
+import { ApplicationConfigurationDto } from '@/services/abp/dtos/ApplicationConfigurationDto';
 class SimpleAbpUtils implements Utils.ISimpleAbpUtils {
   auth: Utils.IAuth;
   localization: Utils.ILocalization;
   currentUser: Utils.ICurrentUser;
+  setting: Utils.ISetting;
 
-  constructor(appInfo?: Simple.Abp.ApplicationConfiguration | null | undefined) {
+  constructor(appInfo?: ApplicationConfigurationDto | null | undefined) {
     if (!appInfo) {
       appInfo = useModel('@@initialState').initialState?.appInfo;
     }
@@ -13,19 +14,20 @@ class SimpleAbpUtils implements Utils.ISimpleAbpUtils {
     this.auth = new Auth(appInfo);
     this.localization = new Localization(appInfo);
     this.currentUser = new CurrentUser(appInfo);
+    this.setting = new Setting(appInfo);
   }
 }
 
 class Auth implements Utils.IAuth {
-  private _appInfo: Simple.Abp.ApplicationConfiguration | null | undefined;
+  private _appInfo: ApplicationConfigurationDto | null | undefined;
 
-  constructor(appInfo: Simple.Abp.ApplicationConfiguration | null | undefined) {
+  constructor(appInfo: ApplicationConfigurationDto | null | undefined) {
     this._appInfo = appInfo;
   }
 
   checkGrant(action: (checkResults: boolean[]) => boolean, ...policyNames: any[]) {
-    const policies = this._appInfo?.auth.policies;
-    const grantedPolicies = this._appInfo?.auth.grantedPolicies;
+    const policies = this._appInfo?.auth?.policies;
+    const grantedPolicies = this._appInfo?.auth?.grantedPolicies;
 
     if (!(policies && grantedPolicies)) {
       return false;
@@ -55,9 +57,9 @@ class Auth implements Utils.IAuth {
 }
 
 class Localization implements Utils.ILocalization {
-  private _appInfo: Simple.Abp.ApplicationConfiguration | null | undefined;
+  private _appInfo: ApplicationConfigurationDto | null | undefined;
 
-  constructor(appInfo: Simple.Abp.ApplicationConfiguration | null | undefined) {
+  constructor(appInfo: ApplicationConfigurationDto | null | undefined) {
     this._appInfo = appInfo;
   }
 
@@ -80,7 +82,7 @@ class Localization implements Utils.ILocalization {
       return key;
     }
 
-    var source = this._appInfo?.localization.values[sourceName];
+    var source = this._appInfo?.localization?.values[sourceName];
     if (!source) {
       console.warn('Could not find localization source: ' + sourceName);
       return key;
@@ -97,9 +99,9 @@ class Localization implements Utils.ILocalization {
 }
 
 class CurrentUser implements Utils.ICurrentUser {
-  private _appInfo: Simple.Abp.ApplicationConfiguration | null | undefined;
+  private _appInfo: ApplicationConfigurationDto | null | undefined;
 
-  constructor(appInfo: Simple.Abp.ApplicationConfiguration | null | undefined) {
+  constructor(appInfo: ApplicationConfigurationDto | null | undefined) {
     this._appInfo = appInfo;
   }
 
@@ -110,6 +112,46 @@ class CurrentUser implements Utils.ICurrentUser {
   }
 }
 
+class Setting implements Utils.ISetting {
+  private _appInfo: ApplicationConfigurationDto | null | undefined;
+  private _antdThemeValueDic: { [key: string]: { [key: string]: string } };
+  constructor(appInfo: ApplicationConfigurationDto | null | undefined) {
+    this._appInfo = appInfo;
+    this._antdThemeValueDic = {
+      'Abp.AntdTheme.PageStyle': {
+        '1': 'light',
+        '2': 'dark',
+        '3': 'realDark',
+      },
+    };
+  }
+  getValue(name: string): string {
+    return this._appInfo?.setting?.values[name] || '';
+  }
+  getAntdThemeSettingValue(name: string): any {
+    var value = this.getValue(name);
+
+    switch (name) {
+      case 'Abp.AntdTheme.PageStyle':
+      case 'Abp.AntdTheme.Color':
+      case 'Abp.AntdTheme.ContentWidth':
+      case 'Abp.AntdTheme.SlidMenuLayout':
+        return this._antdThemeValueDic[name][value];
+
+      case 'Abp.AntdTheme.FixedHeader':
+      case 'Abp.AntdTheme.FixedSidebar':
+      case 'Abp.AntdTheme.Footer':
+      case 'Abp.AntdTheme.Header':
+      case 'Abp.AntdTheme.Menu':
+      case 'Abp.AntdTheme.MenuHeader':
+      case 'Abp.AntdTheme.SplitMenus':
+      case 'Abp.AntdTheme.WeakMode':
+        return value === 'True';
+    }
+
+    return value;
+  }
+}
 const utils = {
   replaceAll(str: string, search: string, replacement: string) {
     var fix = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

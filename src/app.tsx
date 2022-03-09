@@ -12,6 +12,7 @@ import simpleLanguage from './utils/simple-language';
 
 import { ApplicationConfigurationDto } from '@/services/abp/dtos/ApplicationConfigurationDto';
 import abpApplicationService from '@/services/abp/abp-application-configuration-service';
+import simpleAbp from './utils/simple-abp';
 
 const loginPath = '/user/login';
 const loginCorrelationPaths = [loginPath, '/user/login-callback'];
@@ -73,10 +74,24 @@ export async function getInitialState(): Promise<{
     history.push('/');
   }
 
+  const simpleAbpUtils = new simpleAbp.SimpleAbpUtils(appInfo);
+  const setting = simpleAbpUtils.setting;
   return {
     appInfo,
     getAppInfo,
-    //settings: defaultSettings,
+    settings: {
+      title: 'Simple Abp Pro',
+      navTheme: setting.getAntdThemeSettingValue('Abp.AntdTheme.PageStyle'),
+      primaryColor: '#2F54EB',
+      layout: 'side',
+      contentWidth: 'Fluid',
+      fixedHeader: true,
+      fixSiderbar: true,
+      headerHeight: 48,
+      splitMenus: false,
+      colorWeak: false,
+      iconfontUrl: '',
+    },
   };
 }
 

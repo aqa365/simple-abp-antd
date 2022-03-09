@@ -20,5 +20,10 @@ declare namespace Utils {
   interface ICurrentUser {
     getWaterMark(): string;
   }
+
+  interface ISetting {
+    getValue(name: string): string;
+    getAntdThemeSettingValue(name: string): any;
+  }
   /** simple abp end */
 }

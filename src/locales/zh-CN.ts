@@ -24,6 +24,7 @@ export default {
   'menu.Administration.Identity.SecurityLogs': '安全日志',
 
   'menu.Administration.AuditLogs': '审计日志',
+  'menu.Administration.Settings': '设置',
 
   'menu.Cms': '内容管理',
   'menu.Cms.Pages': '页面',

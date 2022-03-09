@@ -79,6 +79,11 @@
         path: 'audit-logs',
         component: './AuditLogs',
       },
+      {
+        name: 'Settings',
+        path: 'settings',
+        component: './Settings',
+      },
     ],
   },
   {
@@ -89,32 +94,32 @@
       { path: '/cms', redirect: 'pages' },
       {
         name: 'Pages',
-        path: '/cms/pages',
+        path: 'pages',
         component: './cms/Pages',
       },
       {
         name: 'Blogs',
-        path: '/cms/blogs',
+        path: 'blogs',
         component: './cms/Blogs',
       },
       {
         name: 'BlogPosts',
-        path: '/cms/blog-posts',
+        path: 'blog-posts',
         component: './cms/BlogPosts',
       },
       {
         name: 'Tags',
-        path: '/cms/tags',
+        path: 'tags',
         component: './cms/Tags',
       },
       {
         name: 'Comments',
-        path: '/cms/comments',
+        path: 'comments',
         component: './cms/Comments',
       },
       {
         name: 'Menus',
-        path: '/cms/menus',
+        path: 'menus',
         component: './cms/Menus',
       },
     ],

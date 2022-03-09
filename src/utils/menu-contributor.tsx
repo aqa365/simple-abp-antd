@@ -17,7 +17,7 @@ class MenuContributor {
   _simpleAbpUtils: Utils.ISimpleAbpUtils;
   _g: (...policyNames: string[]) => boolean;
 
-  constructor(appInfo?: Simple.Abp.ApplicationConfiguration) {
+  constructor(appInfo?: any) {
     this._simpleAbpUtils = new simpleAbp.SimpleAbpUtils(appInfo);
     this._g = this._simpleAbpUtils.auth.isGranted;
   }
