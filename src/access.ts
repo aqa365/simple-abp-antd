@@ -1,10 +1,11 @@
+import { ApplicationConfigurationDto } from '@/services/abp/dtos/ApplicationConfigurationDto';
 import simpleAbp from './utils/simple-abp';
 
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access
  * */
 export default function access(initialState: {
-  appInfo?: Simple.Abp.ApplicationConfiguration | undefined;
+  appInfo?: ApplicationConfigurationDto | undefined;
 }) {
   var simpleAbpUtils: Utils.ISimpleAbpUtils | undefined = undefined;
   if (initialState.appInfo) {

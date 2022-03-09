@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Dropdown, Button, Form, Modal, message } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
+import { ModalForm, ProFormText, ProFormSelect } from '@ant-design/pro-form';
 import {
   PlusOutlined,
   SettingOutlined,
   DownOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { TagDto } from '@/services/cms-kit/dtos/TagDto';
 import tagAdminService from '@/services/cms-kit-admin/tag-admin-service';
 import simpleAbp from '@/utils/simple-abp';
@@ -17,42 +17,42 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [form] = Form.useForm();
 
-  const [editModel, handleEditModel] = useState<TagDto>();
-  const [editModalTitle, handleEditModalTitle] = useState<string>('');
-  const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
+  const [tagModel, setTagModel] = useState<TagDto>();
+  const [modalTitle, setModalTitle] = useState<string>('');
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('SimpleAbpArticles');
+  const l = simpleAbpUtils.localization.getResource('CmsKit');
   const g = simpleAbpUtils.auth.isGranted;
 
   useEffect(() => {
     const setData = () => {
-      if (editModalVisible) {
-        form.setFieldsValue(editModel);
+      if (modalVisible) {
+        form.setFieldsValue(tagModel);
       }
     };
     setData();
-  }, [editModalVisible]);
+  }, [modalVisible]);
 
   const handleEdit = async (row: any) => {
-    handleEditModalTitle(l('Edit'));
-    handleEditModel(row);
-    handleEditModalVisible(true);
+    setModalTitle(l('Edit'));
+    setTagModel(row);
+    setModalVisible(true);
   };
 
   const handleCreate = () => {
-    handleEditModalTitle(l('New Tag'));
-    handleEditModel(undefined);
-    handleEditModalVisible(true);
+    setModalTitle(l('NewTag'));
+    setTagModel(undefined);
+    setModalVisible(true);
   };
 
   const handleSubmit = async (values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      editModel?.id
+      tagModel?.id
         ? await tagAdminService.update(values.id, values)
         : await tagAdminService.create(values);
-      message.success(l('SavedSuccessfully'));
+      message.success(l('SuccessfullySaved'));
       actionRef.current?.reload();
       return true;
     } catch (error) {
@@ -67,7 +67,7 @@ const TableList: React.FC = () => {
     Modal.confirm({
       title: l('AreYouSure'),
       icon: <ExclamationCircleOutlined />,
-      content: l('DetetCatalog', row.name),
+      content: l('GenericDeletionConfirmationMessage', row.name),
       okText: l('Delete'),
       cancelText: l('Cancel'),
       onOk: async () => {
@@ -132,6 +132,38 @@ const TableList: React.FC = () => {
     },
   ];
 
+  const entityTypeDom = () => {
+    if (tagModel?.id) {
+      return <></>;
+    }
+
+    return (
+      <ProFormSelect
+        name="entityType"
+        label={l('EntityType')}
+        showSearch
+        request={async () => {
+          const definitions = await tagAdminService.getTagDefinitions();
+          const labels = definitions.map((c) => {
+            return {
+              label: c.displayName,
+              value: c.entityType,
+            };
+          });
+          console.log(labels);
+          return labels || [];
+        }}
+        rules={[
+          {
+            required: true,
+            message: l('The {0} field is required.', l('EntityType')),
+            whitespace: true,
+          },
+        ]}
+      />
+    );
+  };
+
   return (
     <PageContainer>
       <ProTable<TagDto>
@@ -154,16 +186,16 @@ const TableList: React.FC = () => {
         options={false}
         toolBarRender={() => [
           <Button type="primary" key="primary" onClick={handleCreate}>
-            <PlusOutlined /> {l('New Blog')}
+            <PlusOutlined /> {l('NewTag')}
           </Button>,
         ]}
       />
 
       <ModalForm<TagDto>
-        title={editModalTitle}
+        title={modalTitle}
         form={form}
         modalProps={{ centered: true }}
-        visible={editModalVisible}
+        visible={modalVisible}
         width={640}
         submitter={{
           searchConfig: {
@@ -176,13 +208,14 @@ const TableList: React.FC = () => {
             form.resetFields();
             return;
           }
-          handleEditModalVisible(false);
+          setModalVisible(false);
         }}
         onFinish={async (values) => {
           await handleSubmit(values);
-          handleEditModalVisible(false);
+          setModalVisible(false);
         }}
       >
+        {entityTypeDom()}
         <ProFormText
           name="name"
           label={l('Name')}

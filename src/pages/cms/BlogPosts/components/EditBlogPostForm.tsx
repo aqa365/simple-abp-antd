@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { message, Form } from 'antd';
 import { ModalForm, ProFormText, ProFormTextArea, ProFormSelect } from '@ant-design/pro-form';
 import simpleLanguage from '@/utils/simple-language';
-import { uploads } from '@/services/simple-abp/simple-abp-cloud-storage';
+import cloudStorageService from '@/services/cloud-storage/cloud-storage-service';
 import 'braft-editor/dist/index.css';
 import BraftEditor from 'braft-editor';
 
@@ -28,7 +28,6 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
   const [form] = Form.useForm();
   const l = props.simpleAbpUtils.localization.getResource('CmsKit');
 
-  const [tags, setTags] = useState<string>();
   const [editor, setEditor] = useState<any>({
     state: BraftEditor.createEditorState(null),
   });
@@ -38,6 +37,10 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
       if (!params.visible) {
         return;
       }
+
+      setEditor({
+        state: BraftEditor.createEditorState(null),
+      });
 
       if (params.id) {
         const hide = message.loading(l('LoadingWithThreeDot'), 0);
@@ -50,7 +53,7 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
 
         const tagsResult = await tagPublicService.getAllRelatedTags('BlogPost', params.id);
         var tags = tagsResult.map((c) => c.name).join(',');
-        setTags(tags);
+        form.setFieldsValue({ tags });
         hide();
       }
     };
@@ -62,9 +65,23 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
       values['content'] = editor.state.toHTML();
-      props.params.id
+
+      const result = props.params.id
         ? await blogPostAdminService.update(props.params.id, values)
         : await blogPostAdminService.create(values);
+
+      const tagsStr: string = form.getFieldValue('tags');
+      if (!props.params.id && tagsStr) {
+        await entityTagAdminService.setEntityTags({
+          entityId: result.id,
+          entityType: 'BlogPost',
+          tags: tagsStr
+            .split(',')
+            .map((x) => x.trim())
+            .filter((x) => x),
+        });
+      }
+
       message.success(l('SuccessfullySaved'));
       return true;
     } catch (error) {
@@ -169,7 +186,8 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
             uploadFn: (param) => {
               const formData = new FormData();
               formData.append('file', param.file);
-              uploads(formData)
+              cloudStorageService
+                .postFile(formData)
                 .then((url) => {
                   param.success({
                     url: url,

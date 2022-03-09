@@ -3,7 +3,7 @@ import { message, Modal, Descriptions } from 'antd';
 import { CommentWithAuthorDto } from '@/services/cms-kit-admin/dtos/CommentWithAuthorDto';
 import commentAdminService from '@/services/cms-kit-admin/comment-admin-service';
 import CommentTableList from './CommentTableList';
-export type DetailProps = {
+export type CommentDetailProps = {
   params: {
     id?: string;
     isModalVisible: boolean;
@@ -12,11 +12,11 @@ export type DetailProps = {
   simpleAbpUtils: Utils.ISimpleAbpUtils;
 };
 
-const DetailModal: React.FC<DetailProps> = (props) => {
+const CommentDetailModal: React.FC<CommentDetailProps> = (props) => {
   const params = props.params;
   const [commentWithAuthorDto, setCommentWithAuthorDto] = useState<CommentWithAuthorDto>();
 
-  const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
+  const l = props.simpleAbpUtils.localization.getResource('CmsKit');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +40,7 @@ const DetailModal: React.FC<DetailProps> = (props) => {
       centered
       title={l('Detail')}
       visible={params.isModalVisible}
-      width={700}
+      width={1200}
       onCancel={() => {
         params.onCancel();
       }}
@@ -62,15 +62,15 @@ const DetailModal: React.FC<DetailProps> = (props) => {
         <Descriptions.Item label={l('CreationTime')}>
           {commentWithAuthorDto?.creationTime}
         </Descriptions.Item>
-        <Descriptions.Item label={l('UserName')}>
+        <Descriptions.Item label={l('Username')}>
           {commentWithAuthorDto?.author.userName}
         </Descriptions.Item>
         <Descriptions.Item label={l('Text')} span={2}>
           {commentWithAuthorDto?.text}
         </Descriptions.Item>
       </Descriptions>
-      <CommentTableList params={{ id: params.id }} simpleAbpUtils={props.simpleAbpUtils} />
+      <CommentTableList id={params.id} simpleAbpUtils={props.simpleAbpUtils} />
     </Modal>
   );
 };
-export default DetailModal;
+export default CommentDetailModal;

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { message, Form, Tabs } from 'antd';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import simpleLanguage from '@/utils/simple-language';
-import { uploads } from '@/services/simple-abp/simple-abp-cloud-storage';
+import cloudStorageService from '@/services/cloud-storage/cloud-storage-service';
 import 'braft-editor/dist/index.css';
 import BraftEditor from 'braft-editor';
 
 import { PageDto } from '@/services/cms-kit-admin/dtos/PageDto';
 import pageAdminService from '@/services/cms-kit-admin/page-admin-service';
 const { TabPane } = Tabs;
-export type EditFormProps = {
+export type EditPageFormProps = {
   params: {
     id?: string;
     title: string;
@@ -20,19 +20,24 @@ export type EditFormProps = {
   simpleAbpUtils: Utils.ISimpleAbpUtils;
 };
 
-const EditForm: React.FC<EditFormProps> = (props) => {
+const EditPageForm: React.FC<EditPageFormProps> = (props) => {
   const params = props.params;
   const [form] = Form.useForm();
   const [editor, setEditor] = useState<any>({
     state: BraftEditor.createEditorState(null),
   });
-  const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
+
+  const l = props.simpleAbpUtils.localization.getResource('CmsKit');
 
   useEffect(() => {
     const fetchData = async () => {
       if (!params.isModalVisible) {
         return;
       }
+
+      setEditor({
+        state: BraftEditor.createEditorState(''),
+      });
 
       if (params.id) {
         const hide = message.loading(l('LoadingWithThreeDot'), 0);
@@ -55,7 +60,7 @@ const EditForm: React.FC<EditFormProps> = (props) => {
       props.params.id
         ? await pageAdminService.update(props.params.id, values)
         : await pageAdminService.create(values);
-      message.success(l('SavedSuccessfully'));
+      message.success(l('SuccessfullySaved'));
       return true;
     } catch (error) {
       console.log(error);
@@ -125,11 +130,6 @@ const EditForm: React.FC<EditFormProps> = (props) => {
             },
           ]}
         />
-        <ProFormTextArea
-          name="shortDescription"
-          label={l('ShortDescription')}
-          placeholder={l('EnterYourFiled', l('ShortDescription').toLowerCase())}
-        />
         <Tabs defaultActiveKey="1">
           <TabPane tab={l('Content')} key="1">
             <BraftEditor
@@ -140,7 +140,8 @@ const EditForm: React.FC<EditFormProps> = (props) => {
                 uploadFn: (param) => {
                   const formData = new FormData();
                   formData.append('file', param.file);
-                  uploads(formData)
+                  cloudStorageService
+                    .postFile(formData)
                     .then((url) => {
                       param.success({
                         url: url,
@@ -179,4 +180,4 @@ const EditForm: React.FC<EditFormProps> = (props) => {
     </ModalForm>
   );
 };
-export default EditForm;
+export default EditPageForm;

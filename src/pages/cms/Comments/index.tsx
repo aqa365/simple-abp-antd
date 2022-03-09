@@ -7,7 +7,7 @@ const TableList: React.FC = () => {
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
   return (
     <PageContainer>
-      <CommentTableList params={{}} simpleAbpUtils={simpleAbpUtils} />
+      <CommentTableList simpleAbpUtils={simpleAbpUtils} />
     </PageContainer>
   );
 };

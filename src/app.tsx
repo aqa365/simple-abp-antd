@@ -7,7 +7,7 @@ import { PageLoading } from '@ant-design/pro-layout';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import defaultSettings from '../config/defaultSettings';
-import Auth from './services/simple-abp/identity/auth';
+import Auth from '@/services/identity/auth';
 import simpleLanguage from './utils/simple-language';
 
 import { ApplicationConfigurationDto } from '@/services/abp/dtos/ApplicationConfigurationDto';

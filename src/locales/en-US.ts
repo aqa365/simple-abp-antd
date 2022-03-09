@@ -25,10 +25,13 @@ export default {
 
   'menu.Administration.AuditLogs': 'Audit Logs',
 
-  'menu.Articles': 'Articles Management',
-  'menu.Articles.Article': 'Article',
-  'menu.Articles.Catalog': 'Catalog',
-  'menu.Articles.Tag': 'Tag',
+  'menu.Cms': 'Cms',
+  'menu.Cms.Pages': 'Pages',
+  'menu.Cms.Blogs': 'Blogs',
+  'menu.Cms.BlogPosts': 'Blog Posts',
+  'menu.Cms.Tags': 'Tags',
+  'menu.Cms.Comments': 'Comments',
+  'menu.Cms.Menus': 'Menus',
 
   ...globalHeader,
   ...menu,

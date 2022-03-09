@@ -92,10 +92,11 @@ const TableList: React.FC = () => {
       title: l('BlogName'),
       dataIndex: 'blogName',
       width: 160,
+      search: false,
     },
     {
-      title: l('Name'),
-      dataIndex: 'name',
+      title: l('Title'),
+      dataIndex: 'title',
       width: 160,
       search: {
         transform: (value: any) => ({
@@ -147,6 +148,7 @@ const TableList: React.FC = () => {
           },
           onSubmit: () => {
             setmModalVisible(false);
+            actionRef.current?.reload();
           },
         }}
         simpleAbpUtils={simpleAbpUtils}

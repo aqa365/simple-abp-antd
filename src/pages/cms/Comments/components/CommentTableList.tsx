@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Dropdown, Button, Modal, message } from 'antd';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import { SettingOutlined, DownOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -7,31 +7,39 @@ import { CommentWithAuthorDto } from '@/services/cms-kit-admin/dtos/CommentWithA
 import commentAdminService from '@/services/cms-kit-admin/comment-admin-service';
 import CommentDetail from './CommentDetail';
 
-export type TableListProps = {
-  params: {
-    id?: string;
-  };
+export type CommentTableListProps = {
+  id?: string;
   simpleAbpUtils: Utils.ISimpleAbpUtils;
 };
 
-const CommentTableList: React.FC<TableListProps> = (props) => {
+const CommentTableList: React.FC<CommentTableListProps> = (props) => {
   const actionRef = useRef<ActionType>();
-  const l = props.simpleAbpUtils.localization.getResource('SimpleAbpArticles');
+  const l = props.simpleAbpUtils.localization.getResource('CmsKit');
   const g = props.simpleAbpUtils.auth.isGranted;
 
-  const [detailId, setDetailId] = useState<string>();
-  const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
+  const [modelId, setModelId] = useState<string>();
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (props.id) {
+        actionRef.current?.reload();
+      }
+    };
+
+    fetchData();
+  }, [props.id]);
 
   const handleDetail = async (row: any) => {
-    setDetailId(row.id);
-    setDetailModalVisible(true);
+    setModelId(row.id);
+    setModalVisible(true);
   };
 
   const handleDelete = async (row: CommentWithAuthorDto) => {
     Modal.confirm({
       title: l('AreYouSure'),
       icon: <ExclamationCircleOutlined />,
-      content: l('DeteteComment', row.text),
+      content: l('GenericDeletionConfirmationMessage', row.text),
       okText: l('Delete'),
       cancelText: l('Cancel'),
       onOk: async () => {
@@ -52,8 +60,8 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
   const actionDom = (row: CommentWithAuthorDto) => {
     return (
       <Menu key={row.id + 'menu'}>
-        <Menu.Item key={row.id + 'Edit'} onClick={() => handleDetail(row)}>
-          {l('Edit')}
+        <Menu.Item key={row.id + 'Detail'} onClick={() => handleDetail(row)}>
+          {l('Detail')}
         </Menu.Item>
         <Menu.Item key={row.id + 'Delete'} onClick={() => handleDelete(row)}>
           {l('Delete')}
@@ -79,9 +87,14 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
       ],
     },
     {
-      title: l('UserName'),
+      title: l('Username'),
       dataIndex: 'userName',
       width: 160,
+      search: {
+        transform: (value: any) => ({
+          author: value,
+        }),
+      },
       render: (text, row, index) => {
         return row.author?.userName;
       },
@@ -89,11 +102,18 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
     {
       title: l('EntityType'),
       dataIndex: 'entityType',
+      order: 98,
       width: 160,
     },
     {
       title: l('Text'),
       dataIndex: 'text',
+      // width: 500,
+      search: false,
+    },
+    {
+      title: l('CreationTime'),
+      dataIndex: 'creationTime',
       width: 160,
       search: false,
     },
@@ -102,6 +122,7 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
       title: l('CreationTime'),
       valueType: 'dateRange',
       dataIndex: 'creationTime',
+      hideInTable: true,
       search: {
         transform: (value: any) => ({
           CreationStartDate: value[0] + ' 00:00:00',
@@ -118,6 +139,7 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
         rowKey={(d) => d.id}
         request={async (params, sort, filter) => {
           const requestData = {
+            repliedCommentId: props.id,
             maxResultCount: params.pageSize,
             skipCount: ((params.current || 1) - 1) * (params.pageSize || 10),
             ...params,
@@ -129,15 +151,19 @@ const CommentTableList: React.FC<TableListProps> = (props) => {
             success: true,
           };
         }}
+        search={{
+          labelWidth: 'auto',
+        }}
         columns={columns}
         options={false}
       />
       <CommentDetail
         params={{
-          id: detailId,
-          isModalVisible: detailModalVisible,
+          id: modelId,
+          isModalVisible: modalVisible,
           onCancel: () => {
-            setDetailModalVisible(false);
+            setModalVisible(false);
+            actionRef.current?.reload();
           },
         }}
         simpleAbpUtils={props.simpleAbpUtils}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Tree, Menu, Dropdown, Button, message, Form, Modal } from 'antd';
+import { Tree, Menu, Dropdown, Button, message, Form, Modal } from 'antd';
 import { PageContainer, WaterMark } from '@ant-design/pro-layout';
 import ProCard from '@ant-design/pro-card';
 import { ModalForm, ProFormText, ProFormCheckbox, ProFormDigit } from '@ant-design/pro-form';
@@ -17,7 +17,7 @@ import simpleAbp from '@/utils/simple-abp';
 
 const TableList: React.FC = () => {
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('AbpIdentity');
+  const l = simpleAbpUtils.localization.getResource('CmsKit');
   const g = simpleAbpUtils.auth.isGranted;
 
   const [form] = Form.useForm();
@@ -25,7 +25,6 @@ const TableList: React.FC = () => {
   const [modalTitle, setModalTitle] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(false);
-
   const [treeData, setTreeData] = useState<any>();
 
   const [menuItems, setMenuItems] = useState<MenuItemDto[]>();
@@ -51,12 +50,12 @@ const TableList: React.FC = () => {
   }, []);
 
   const handleAddMenuItem = () => {
-    setModalTitle(l('AddMenuItem'));
+    setModalTitle(l('NewMenuItem'));
     setMenuItem(undefined);
     setModalVisible(true);
   };
   const handleAddSubMenuItem = (id: string) => {
-    setModalTitle(l('AddSubUnit'));
+    setModalTitle(l('AddSubMenuItem'));
     setMenuItem({ parentId: id });
     setModalVisible(true);
   };
@@ -71,10 +70,10 @@ const TableList: React.FC = () => {
   const handleSubmit = async (values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      const func = values.id
+      values.id
         ? await menuItemAdminService.update(values.id, values)
         : await menuItemAdminService.create(values);
-      message.success(l('SavedSuccessfully'));
+      message.success(l('SuccessfullySaved'));
       return true;
     } catch (error) {
       console.log(error);
@@ -110,7 +109,7 @@ const TableList: React.FC = () => {
     Modal.confirm({
       title: l('AreYouSure'),
       icon: <ExclamationCircleOutlined />,
-      content: l('OrganizationUnitDeletionConfirmationMessage', menuItem?.displayName || ''),
+      content: l('GenericDeletionConfirmationMessage', menuItem?.displayName || ''),
       okText: l('Delete'),
       cancelText: l('Cancel'),
       onOk: async () => {
@@ -159,30 +158,39 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <Tree
-        showIcon
-        showLine={{ showLeafIcon: false }}
-        blockNode
-        defaultExpandAll
-        switcherIcon={<DownOutlined />}
-        treeData={treeData}
-        draggable
-        onDrop={handleMoveMenuItem}
-        onSelect={(selectKeys, info) => {}}
-        titleRender={(item) => {
-          return (
-            <>
-              {item.title}
-              <Dropdown trigger={['click']} overlay={menu(item.key.toString())}>
-                <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-                  &nbsp; &nbsp;
-                  <EllipsisOutlined />
-                </a>
-              </Dropdown>
-            </>
-          );
-        }}
-      />
+      <ProCard
+        loading={loading}
+        extra={
+          <Button type="primary" key="primary" onClick={handleAddMenuItem}>
+            <PlusOutlined /> {l('NewMenuItem')}
+          </Button>
+        }
+      >
+        <Tree
+          showIcon
+          showLine={{ showLeafIcon: false }}
+          blockNode
+          defaultExpandAll
+          switcherIcon={<DownOutlined />}
+          treeData={treeData}
+          draggable
+          onDrop={handleMoveMenuItem}
+          onSelect={(selectKeys, info) => {}}
+          titleRender={(item) => {
+            return (
+              <>
+                {item.title}
+                <Dropdown trigger={['click']} overlay={menu(item.key.toString())}>
+                  <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
+                    &nbsp; &nbsp;
+                    <EllipsisOutlined />
+                  </a>
+                </Dropdown>
+              </>
+            );
+          }}
+        />
+      </ProCard>
 
       <ModalForm<any>
         form={form}
@@ -219,7 +227,6 @@ const TableList: React.FC = () => {
           <ProFormText
             name="displayName"
             label={l('DisplayName')}
-            placeholder={l('EnterYourFiled', l('DisplayName').toLowerCase())}
             rules={[
               {
                 required: true,
@@ -228,8 +235,19 @@ const TableList: React.FC = () => {
               },
             ]}
           />
-          <ProFormCheckbox name="isActive" />
-          <ProFormDigit label="Order" name="order" min={1} max={10} />
+          <ProFormText
+            name="url"
+            label={l('Url')}
+            rules={[
+              {
+                required: true,
+                message: l('The {0} field is required.', l('Url')),
+                whitespace: true,
+              },
+            ]}
+          />
+          <ProFormCheckbox name="isActive" label={l('IsActive')} />
+          <ProFormDigit name="order" label={l('Order')} min={1} max={10} />
           <ProFormText name="icon" label={l('Icon')} />
           <ProFormText name="target" label={l('Target')} />
           <ProFormText name="elementId" label={l('ElementId')} />

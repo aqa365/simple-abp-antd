@@ -86,7 +86,12 @@
     icon: 'PaperClipOutlined',
     path: '/cms',
     routes: [
-      { path: '/cms', redirect: 'blogs' },
+      { path: '/cms', redirect: 'pages' },
+      {
+        name: 'Pages',
+        path: '/cms/pages',
+        component: './cms/Pages',
+      },
       {
         name: 'Blogs',
         path: '/cms/blogs',
@@ -96,6 +101,21 @@
         name: 'BlogPosts',
         path: '/cms/blog-posts',
         component: './cms/BlogPosts',
+      },
+      {
+        name: 'Tags',
+        path: '/cms/tags',
+        component: './cms/Tags',
+      },
+      {
+        name: 'Comments',
+        path: '/cms/comments',
+        component: './cms/Comments',
+      },
+      {
+        name: 'Menus',
+        path: '/cms/menus',
+        component: './cms/Menus',
       },
     ],
   },

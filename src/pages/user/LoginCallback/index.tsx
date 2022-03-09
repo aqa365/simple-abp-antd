@@ -1,5 +1,5 @@
 import { PageLoading } from '@ant-design/pro-layout';
-import Auth from '@/services/simple-abp/identity/auth';
+import Auth from '@/services/identity/auth';
 
 Auth.userManager
   .signinRedirectCallback()

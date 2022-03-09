@@ -25,10 +25,13 @@ export default {
 
   'menu.Administration.AuditLogs': '审计日志',
 
-  'menu.Articles': '文章管理',
-  'menu.Articles.Article': '文章',
-  'menu.Articles.Catalog': '类别',
-  'menu.Articles.Tag': '标签',
+  'menu.Cms': '内容管理',
+  'menu.Cms.Pages': '页面',
+  'menu.Cms.Blogs': '博客',
+  'menu.Cms.BlogPosts': '博客文章',
+  'menu.Cms.Tags': '标签',
+  'menu.Cms.Comments': '评论',
+  'menu.Cms.Menus': '菜单',
 
   ...pages,
   ...globalHeader,

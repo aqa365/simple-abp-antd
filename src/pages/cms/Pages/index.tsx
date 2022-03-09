@@ -11,46 +11,36 @@ import {
 import { PageDto } from '@/services/cms-kit-admin/dtos/PageDto';
 import pageAdminService from '@/services/cms-kit-admin/page-admin-service';
 import simpleAbp from '@/utils/simple-abp';
+import EditPageForm from './components/EditPageForm';
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const [form] = Form.useForm();
 
-  const [editModel, handleEditModel] = useState<PageDto>();
-  const [editModalTitle, handleEditModalTitle] = useState<string>('');
-  const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
+  const [modelId, setModelId] = useState<string>();
+  const [modalTitle, setModalTitle] = useState<string>('');
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
-  const l = simpleAbpUtils.localization.getResource('SimpleAbpArticles');
+  const l = simpleAbpUtils.localization.getResource('CmsKit');
   const g = simpleAbpUtils.auth.isGranted;
 
-  useEffect(() => {
-    const setData = () => {
-      if (editModalVisible) {
-        form.setFieldsValue(editModel);
-      }
-    };
-
-    setData();
-  }, [editModalVisible]);
-
   const handleEdit = async (row: any) => {
-    handleEditModalTitle(l('Edit'));
-    handleEditModel(row);
-    handleEditModalVisible(true);
+    setModalTitle(l('Edit'));
+    setModelId(row.id);
+    setModalVisible(true);
   };
 
   const handleCreate = () => {
-    handleEditModalTitle(l('New Page'));
-    handleEditModel(undefined);
-    handleEditModalVisible(true);
+    setModalTitle(l('NewPage'));
+    setModelId(undefined);
+    setModalVisible(true);
   };
 
   const handleDelete = async (row: PageDto) => {
     Modal.confirm({
       title: l('AreYouSure'),
       icon: <ExclamationCircleOutlined />,
-      content: l('DetetCatalog', row.title),
+      content: l('GenericDeletionConfirmationMessage', row.title),
       okText: l('Delete'),
       cancelText: l('Cancel'),
       onOk: async () => {
@@ -149,9 +139,24 @@ const TableList: React.FC = () => {
         options={false}
         toolBarRender={() => [
           <Button type="primary" key="primary" onClick={handleCreate}>
-            <PlusOutlined /> {l('New Page')}
+            <PlusOutlined /> {l('NewPage')}
           </Button>,
         ]}
+      />
+      <EditPageForm
+        params={{
+          id: modelId,
+          title: modalTitle,
+          isModalVisible: modalVisible,
+          onSubmit: () => {
+            setModalVisible(false);
+            actionRef.current?.reload();
+          },
+          onCancel: () => {
+            setModalVisible(false);
+          },
+        }}
+        simpleAbpUtils={simpleAbpUtils}
       />
     </PageContainer>
   );

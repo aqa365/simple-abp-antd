@@ -17,8 +17,8 @@ const GlobalHeaderRight: React.FC = () => {
     return null;
   }
 
-  const currentLanguage = initialState?.appInfo?.localization.languages.find(
-    (c) => c.cultureName === initialState?.appInfo?.localization.currentCulture.cultureName,
+  const currentLanguage = initialState?.appInfo?.localization?.languages?.find(
+    (c) => c.cultureName === initialState?.appInfo?.localization?.currentCulture?.cultureName,
   );
 
   const { navTheme, layout } = initialState.settings;
@@ -41,13 +41,13 @@ const GlobalHeaderRight: React.FC = () => {
         overlay={() => {
           return (
             <Menu className={styles.menu}>
-              {initialState.appInfo?.localization.languages.map((item, index) => {
+              {initialState.appInfo?.localization?.languages?.map((item, index) => {
                 return (
                   <Menu.Item
                     key={'languages' + index}
                     onClick={() => {
-                      simpleLanguage.setLanguage(item.cultureName);
-                      setLocale(simpleLanguage.convertToAntdLanguage(item?.cultureName));
+                      simpleLanguage.setLanguage(item?.cultureName || '');
+                      setLocale(simpleLanguage.convertToAntdLanguage(item?.cultureName || ''));
                     }}
                   >
                     <Avatar
