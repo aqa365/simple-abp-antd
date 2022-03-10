@@ -123,6 +123,11 @@ class Setting implements Utils.ISetting {
         '2': 'dark',
         '3': 'realDark',
       },
+      'Abp.AntdTheme.SlidMenuLayout': {
+        '1': 'side',
+        '2': 'top',
+        '3': 'mix',
+      },
     };
   }
   getValue(name: string): string {
@@ -133,7 +138,6 @@ class Setting implements Utils.ISetting {
 
     switch (name) {
       case 'Abp.AntdTheme.PageStyle':
-      case 'Abp.AntdTheme.Color':
       case 'Abp.AntdTheme.ContentWidth':
       case 'Abp.AntdTheme.SlidMenuLayout':
         return this._antdThemeValueDic[name][value];

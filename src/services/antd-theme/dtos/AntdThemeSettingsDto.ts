@@ -3,7 +3,7 @@ export interface AntdThemeSettingsDto {
     pageStyle: number;
   };
   themeColor: {
-    color: number;
+    color: string;
   };
   navigationMode: {
     slidMenuLayout: number;
