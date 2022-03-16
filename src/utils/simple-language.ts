@@ -17,6 +17,18 @@ export default {
         return 'en-US';
     }
   },
+  convertToTinymceEditorLanguage() {
+    var language = this.getCurrentLanguage();
+    switch (language) {
+      case 'zh-Hans':
+        return 'zh_CN';
+      case 'zh-Hant':
+        return 'zh_CN';
+      case 'en':
+      default:
+        return 'en';
+    }
+  },
   convertToBraftEditorLanguage() {
     var language = this.getCurrentLanguage();
     switch (language) {

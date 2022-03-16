@@ -88,6 +88,11 @@ const AntdThemeSettings: React.FC<AntdThemeSettingsProps> = (props) => {
         }}
         onFinish={handleSubmit}
       >
+        <ProFormText
+          name="sourceUrl"
+          label={l('SourceUrl')}
+          rules={[{ type: 'url', warningOnly: true }]}
+        />
         <ProForm.Group title={l('PageStyleSetting')}>
           <ProFormSelect
             name={['pageStyleSetting', 'pageStyle']}
@@ -187,6 +192,7 @@ const AntdThemeSettings: React.FC<AntdThemeSettingsProps> = (props) => {
             label={l('WeakMode')}
           />
         </ProForm.Group>
+        <Divider style={{ margin: '10px 0' }} />
       </ProForm>
     </ProCard>
   );

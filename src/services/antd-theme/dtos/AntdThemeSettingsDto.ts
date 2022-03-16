@@ -21,4 +21,5 @@ export interface AntdThemeSettingsDto {
   otherSettings: {
     weakMode: boolean;
   };
+  sourceUrl?: string;
 }

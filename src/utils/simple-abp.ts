@@ -134,6 +134,7 @@ class Setting implements Utils.ISetting {
     return this._appInfo?.setting?.values[name] || '';
   }
   getAntdThemeSettingValue(name: string): any {
+    name = 'Abp.AntdTheme.' + name;
     var value = this.getValue(name);
 
     switch (name) {

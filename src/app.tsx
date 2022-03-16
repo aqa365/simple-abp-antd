@@ -81,9 +81,9 @@ export async function getInitialState(): Promise<{
     getAppInfo,
     settings: {
       title: 'Simple Abp Pro',
-      navTheme: setting.getAntdThemeSettingValue('Abp.AntdTheme.PageStyle'),
-      primaryColor: setting.getAntdThemeSettingValue('Abp.AntdTheme.Color'),
-      layout: setting.getAntdThemeSettingValue('Abp.AntdTheme.SlidMenuLayout'),
+      navTheme: setting.getAntdThemeSettingValue('PageStyle'),
+      primaryColor: setting.getAntdThemeSettingValue('Color'),
+      layout: setting.getAntdThemeSettingValue('SlidMenuLayout'),
       contentWidth: 'Fluid',
       fixedHeader: true,
       fixSiderbar: true,

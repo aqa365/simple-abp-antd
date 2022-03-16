@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { message, Form } from 'antd';
 import { ModalForm, ProFormText, ProFormTextArea, ProFormSelect } from '@ant-design/pro-form';
-import simpleLanguage from '@/utils/simple-language';
-import cloudStorageService from '@/services/cloud-storage/cloud-storage-service';
-import 'braft-editor/dist/index.css';
-import BraftEditor from 'braft-editor';
+import Tinymce from '@/pages/components/Tinymce';
 
 import { BlogPostDto } from '@/services/cms-kit-admin/dtos/BlogPostDto';
 import blogPostAdminService from '@/services/cms-kit-admin/blog-post-admin-service';
@@ -26,11 +23,11 @@ export type EditBlogPostFormProps = {
 const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
   const params = props.params;
   const [form] = Form.useForm();
-  const l = props.simpleAbpUtils.localization.getResource('CmsKit');
 
-  const [editor, setEditor] = useState<any>({
-    state: BraftEditor.createEditorState(null),
-  });
+  const editorRef = useRef<any>();
+  const [content, setContent] = useState<{ content: string }>();
+
+  const l = props.simpleAbpUtils.localization.getResource('CmsKit');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,18 +35,12 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
         return;
       }
 
-      setEditor({
-        state: BraftEditor.createEditorState(null),
-      });
-
       if (params.id) {
         const hide = message.loading(l('LoadingWithThreeDot'), 0);
 
         const detail = await blogPostAdminService.get(params.id);
+        setContent({ content: detail.content });
         form.setFieldsValue(detail);
-        setEditor({
-          state: BraftEditor.createEditorState(detail.content),
-        });
 
         const tagsResult = await tagPublicService.getAllRelatedTags('BlogPost', params.id);
         var tags = tagsResult.map((c) => c.name).join(',');
@@ -64,7 +55,7 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
   const handleSubmit = async (values: any) => {
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     try {
-      values['content'] = editor.state.toHTML();
+      values['content'] = editorRef.current.getContent();
 
       const result = props.params.id
         ? await blogPostAdminService.update(props.params.id, values)
@@ -92,12 +83,7 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
     }
   };
 
-  const handleEeditorChange = (editorState: any) => {
-    setEditor({
-      state: editorState,
-      outputHTML: editorState.toHTML(),
-    });
-  };
+  const handleEeditorChange = (editorState: any) => {};
 
   return (
     <ModalForm<BlogPostDto>
@@ -178,33 +164,11 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
         />
         <ProFormTextArea name="shortDescription" label={l('ShortDescription')} />
         <ProFormText name="tags" label={l('Tags')} />
-        <BraftEditor
-          language={simpleLanguage.convertToBraftEditorLanguage()}
-          value={editor.state}
-          onChange={handleEeditorChange}
-          media={{
-            uploadFn: (param) => {
-              const formData = new FormData();
-              formData.append('file', param.file);
-              cloudStorageService
-                .postFile(formData)
-                .then((url) => {
-                  param.success({
-                    url: url,
-                    meta: {
-                      id: url,
-                      title: param.file.name,
-                      alt: param.file.name,
-                      loop: false, // 指定音视频是否循环播放
-                      autoPlay: false, // 指定音视频是否自动播放
-                      controls: false, // 指定音视频是否显示控制栏
-                      poster: '', // 指定视频播放器的封面
-                    },
-                  });
-                })
-                .catch((error) => {});
-            },
-          }}
+        <Tinymce
+          value={content?.content}
+          onInit={(evt, editor) => (editorRef.current = editor)}
+          onEditorChange={(newVal, editor) => setContent({ content: newVal })}
+          init={{ height: 500 }}
         />
       </div>
     </ModalForm>
