@@ -57,5 +57,13 @@ export default defineConfig({
   define: {
     API_TOKEN_KEY: 'Authorization',
     API_ACCEPT_LANGUAGE_KEY: 'accept-language',
+    API_URL: 'https://api.keepactive.cn',
+    OIDC_CONFIG: {
+      authority: 'https://api.keepactive.cn',
+      client_id: 'Ka_App',
+      redirect_uri: 'https://admin.keepactive.cn/user/login-callback',
+      response_type: 'code',
+      scope: 'offline_access openid profile role email phone ka_api',
+    },
   },
 });

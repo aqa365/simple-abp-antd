@@ -18,6 +18,17 @@ const loginPath = '/user/login';
 const loginCorrelationPaths = [loginPath, '/user/login-callback'];
 const notAuthPaths = [...loginCorrelationPaths];
 
+const currentPathExistByArr = (arr: string[]) => {
+  const pathName = history.location.pathname;
+  var result = false;
+  arr.forEach((c) => {
+    result = pathName.indexOf(c) > -1;
+    if (result) return;
+  });
+
+  return result;
+};
+
 /** 获取用户信息 */
 const getAppInfo = async () => {
   try {
@@ -52,10 +63,8 @@ export async function getInitialState(): Promise<{
     };
   }
 
-  const pathName = history.location.pathname;
-
   // 未登录 在不需要登录的界面
-  if (!appInfo.currentUser?.isAuthenticated && notAuthPaths.indexOf(pathName) > -1) {
+  if (!appInfo.currentUser?.isAuthenticated && currentPathExistByArr(notAuthPaths)) {
     return {
       getAppInfo,
     };
@@ -70,7 +79,7 @@ export async function getInitialState(): Promise<{
   }
 
   // 已登录 在登录界面
-  if (appInfo.currentUser.isAuthenticated && loginCorrelationPaths.indexOf(pathName) > -1) {
+  if (appInfo.currentUser.isAuthenticated && currentPathExistByArr(loginCorrelationPaths)) {
     history.push('/');
   }
 
@@ -106,10 +115,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     footerRender: () => <Footer />,
     onPageChange: () => {
       if (
-        notAuthPaths.indexOf(history.location.pathname) <= -1 &&
+        !currentPathExistByArr(notAuthPaths) &&
         !initialState?.appInfo?.currentUser?.isAuthenticated
       ) {
-        alert(initialState?.appInfo?.currentUser?.userName);
         history.push(loginPath);
       }
     },

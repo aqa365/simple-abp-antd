@@ -5,7 +5,9 @@ Auth.userManager
   .signinRedirectCallback()
   .then((identity) => {
     Auth.setAccessToken(identity.access_token);
-    window.location.href = '/';
+    if (identity.access_token) {
+      window.location.href = '/';
+    }
   })
   .catch(function (e) {
     console.log(e);
