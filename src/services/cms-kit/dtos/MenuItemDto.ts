@@ -9,7 +9,7 @@ export interface MenuItemDto {
   isActive?: boolean;
   url?: string;
   icon?: string;
-  order?: number;
+  order: number;
   target?: string;
   elementId?: string;
   cssClass?: string;

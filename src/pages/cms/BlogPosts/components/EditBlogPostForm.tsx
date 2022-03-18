@@ -62,7 +62,7 @@ const EditBlogPostForm: React.FC<EditBlogPostFormProps> = (props) => {
         : await blogPostAdminService.create(values);
 
       const tagsStr: string = form.getFieldValue('tags');
-      if (!props.params.id && tagsStr) {
+      if (tagsStr) {
         await entityTagAdminService.setEntityTags({
           entityId: result.id,
           entityType: 'BlogPost',

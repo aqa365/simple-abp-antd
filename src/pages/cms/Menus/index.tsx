@@ -84,15 +84,43 @@ const TableList: React.FC = () => {
   };
 
   const handleMoveMenuItem = async (info: any) => {
-    setLoading(true);
+    //setLoading(true);
     const hide = message.loading(l('SavingWithThreeDot'), 0);
 
-    const dragKey = info.dragNode.key;
-    const dropKey = info.node.key;
+    const dragNode = info.dragNode;
+    const dragNodePos = dragNode.pos.split('-');
+    const dragNodePosition = Number(dragNodePos[dragNodePos.length - 1]);
+
+    const dropNode = info.node;
+    const dropNodePos = dropNode.pos.split('-');
+    const dropNodePosition = Number(dropNodePos[dropNodePos.length - 1]);
+
+    let dragKey = dragNode.key;
+    let dragParentKey: string | undefined;
+    let dragPosition;
+
+    if (info.dropPosition === -1) {
+      // ontop
+      dragPosition = 0;
+    } else if (info.dropToGap) {
+      // 非 ontop 移动
+      dragParentKey = dropNode.parentId;
+      dragPosition = info.dropPosition;
+
+      if (dragNode.parentId === dropNode.parentId && dragNodePosition < dropNodePosition) {
+        // 平级向下时移动 移除drag占位
+        dragPosition -= 1;
+      }
+    } else {
+      // 次 ontop
+      dragParentKey = dropNode.key;
+      dragPosition = 0;
+    }
 
     try {
       await menuItemAdminService.moveMenuItem(dragKey, {
-        newParentId: info?.dropToGap ? null : dropKey,
+        newParentId: dragParentKey,
+        position: dragPosition,
       });
       await loadData();
       return true;

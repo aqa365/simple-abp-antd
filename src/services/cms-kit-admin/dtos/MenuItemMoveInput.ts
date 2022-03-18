@@ -1,12 +1,4 @@
-
-
-
-export interface MenuItemMoveInput  {
-	
-		newParentId?:string
-	
-		
-		position?:number
-	
-		
+export interface MenuItemMoveInput {
+  newParentId?: string;
+  position?: number;
 }
