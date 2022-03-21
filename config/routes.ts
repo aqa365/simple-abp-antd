@@ -125,6 +125,39 @@
     ],
   },
   {
+    name: 'Venom',
+    icon: 'PaperClipOutlined',
+    path: '/venom',
+    routes: [
+      { path: '/venom', redirect: 'aim' },
+      {
+        name: 'Aim',
+        path: 'aim',
+        component: './venom/Aim',
+      },
+      {
+        name: 'Radar',
+        path: 'radar',
+        component: './venom/Radar',
+      },
+      {
+        name: 'Rcs',
+        path: 'rcs',
+        component: './venom/Rcs',
+      },
+      {
+        name: 'Trigger',
+        path: 'trigger',
+        component: './venom/Trigger',
+      },
+      {
+        name: 'Sonar',
+        path: 'sonar',
+        component: './venom/Sonar',
+      },
+    ],
+  },
+  {
     component: './404',
   },
 ];

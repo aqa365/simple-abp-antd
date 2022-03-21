@@ -34,6 +34,13 @@ export default {
   'menu.Cms.Comments': 'Comments',
   'menu.Cms.Menus': 'Menus',
 
+  'menu.Venom': 'Venom',
+  'menu.Venom.Aim': 'Aim',
+  'menu.Venom.Radar': 'Radar',
+  'menu.Venom.Rcs': 'Rcs',
+  'menu.Venom.Sonar': 'Sonar',
+  'menu.Venom.Trigger': 'Trigger',
+
   ...globalHeader,
   ...menu,
   ...settingDrawer,

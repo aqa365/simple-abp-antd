@@ -16,7 +16,7 @@ import simpleAbp from './utils/simple-abp';
 
 const loginPath = '/user/login';
 const loginCorrelationPaths = [loginPath, '/user/login-callback'];
-const notAuthPaths = [...loginCorrelationPaths];
+const notAuthPaths = [...loginCorrelationPaths, 'venom'];
 
 const currentPathExistByArr = (arr: string[]) => {
   const pathName = history.location.pathname;
