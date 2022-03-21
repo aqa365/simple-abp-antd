@@ -17,12 +17,12 @@ import {
 } from '@ant-design/icons';
 import simpleAbp from '@/utils/simple-abp';
 
-import { AimModelDto } from '@/services/venom/dtos/AimModelDto';
-import { AimConfigDto } from '@/services/venom/dtos/AimConfigDto';
-import venomSservice from '@/services/venom/venom-service';
+import { AimModelDto } from '@/services/venom/dtos/Aim/AimModelDto';
+import venomAimService from '@/services/venom/venom-aim-service';
+import venomBaseService from '@/services/venom/venom-base-service';
 
-const appConfig = venomSservice.getAppConfig();
-const keys = venomSservice.getKeys();
+const aimConfig = venomAimService.get();
+const keys = venomBaseService.getKeys();
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -36,7 +36,7 @@ const TableList: React.FC = () => {
   const l = simpleAbpUtils.localization.getResource('CmsKit');
   const g = simpleAbpUtils.auth.isGranted;
 
-  const [active, setActive] = useState<boolean>(appConfig?.aim?.active || false);
+  const [active, setActive] = useState<boolean>(aimConfig?.active || false);
 
   useEffect(() => {
     const setData = () => {
@@ -63,10 +63,10 @@ const TableList: React.FC = () => {
     console.log(values);
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     if (model) {
-      venomSservice.createAim(values);
+      venomAimService.updateAim(values);
       actionRef.current?.reload();
     } else {
-      venomSservice.updateAim(values);
+      venomAimService.createAim(values);
       actionRef.current?.reload();
     }
     hide();
@@ -123,12 +123,12 @@ const TableList: React.FC = () => {
       search: false,
     },
     {
-      title: l('WeaponType'),
-      dataIndex: 'weaponType',
+      title: l('Weapons'),
+      dataIndex: 'weapons',
       width: 160,
       search: false,
       render: (text, row, index) => {
-        return row.weaponType?.join(',');
+        return row.weapons?.join(',');
       },
     },
     {
@@ -181,10 +181,11 @@ const TableList: React.FC = () => {
         actionRef={actionRef}
         rowKey={(d) => d.name}
         request={async (params, sort, filter) => {
-          const aimConfig = venomSservice.getAimConfig();
+          const aimModels = venomAimService.getList();
+          console.log(aimModels)
           return {
-            data: aimConfig?.aimModels || [],
-            total: aimConfig?.aimModels.length || 0,
+            data: aimModels,
+            total: aimModels.length,
             success: true,
           };
         }}
@@ -231,6 +232,7 @@ const TableList: React.FC = () => {
       >
         <ProFormText
           name="name"
+          disabled={model?true:false}
           label={l('Name')}
           rules={[
             {
@@ -243,26 +245,18 @@ const TableList: React.FC = () => {
         <ProForm.Group>
           <ProFormTreeSelect
             width="sm"
-            name="weaponType"
-            label={l('WeaponType')}
-            request={async () => [
-              {
-                title: 'Node1',
-                value: '0-0',
-                children: [
-                  {
-                    title: 'Child Node1',
-                    value: '0-0-0',
-                  },
-                ],
-              },
-            ]}
+            name="weapons"
+            label={l('Weapons')}
+            request={async () =>{
+              return venomBaseService.getWeapons();
+            }}
             fieldProps={{
+              treeDefaultExpandAll:true,
               fieldNames: {
                 label: 'title',
               },
               treeCheckable: true,
-              showCheckedStrategy: TreeSelect.SHOW_PARENT,
+              showCheckedStrategy: TreeSelect.SHOW_CHILD,
             }}
             placeholder={l('EnterYourFiled', l('WeaponType').toLowerCase())}
           />

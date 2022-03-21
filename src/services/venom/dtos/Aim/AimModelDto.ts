@@ -1,6 +1,6 @@
-import { PositionConfigDto } from '@/services/venom/dtos/PositionConfigDto';
+import { PositionConfigDto } from '@/services/venom/dtos/Aim/PositionConfigDto';
 export interface AimModelDto extends PositionConfigDto {
   name: string;
-  weaponType: number[];
+  weapons: number[];
   shootsFiredScope: number[];
 }

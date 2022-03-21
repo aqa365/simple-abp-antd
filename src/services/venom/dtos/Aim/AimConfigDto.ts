@@ -1,4 +1,4 @@
-import { AimModelDto } from '@/services/venom/dtos/AimModelDto';
+import { AimModelDto } from '@/services/venom/dtos/Aim/AimModelDto';
 export interface AimConfigDto {
   active: boolean;
   aimModels: AimModelDto[];
