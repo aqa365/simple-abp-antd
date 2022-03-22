@@ -1,5 +1,5 @@
-import { AimModelDto } from '@/services/venom/dtos/Aim/AimModelDto';
+import { WeaponConfigDto } from '@/services/venom/dtos/Aim/WeaponConfigDto';
 export interface AimConfigDto {
   active: boolean;
-  aimModels: AimModelDto[];
+  weaponConfigs: WeaponConfigDto[];
 }

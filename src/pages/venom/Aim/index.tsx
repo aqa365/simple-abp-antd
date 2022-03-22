@@ -17,18 +17,18 @@ import {
 } from '@ant-design/icons';
 import simpleAbp from '@/utils/simple-abp';
 
-import { AimModelDto } from '@/services/venom/dtos/Aim/AimModelDto';
-import venomAimService from '@/services/venom/venom-aim-service';
-import venomBaseService from '@/services/venom/venom-base-service';
+import { WeaponConfigDto } from '@/services/venom/dtos/Aim/WeaponConfigDto';
+import aimService from '@/services/venom/aim-service';
+import appConfigService from '@/services/venom/application-configuration-service';
 
-const aimConfig = venomAimService.get();
-const keys = venomBaseService.getKeys();
+const aimConfig = aimService.get();
+const keys = appConfigService.getKeys();
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [form] = Form.useForm();
 
-  const [model, setModel] = useState<AimModelDto>();
+  const [model, setModel] = useState<WeaponConfigDto>();
   const [modalTitle, setModalTitle] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
@@ -47,7 +47,7 @@ const TableList: React.FC = () => {
     setData();
   }, [modalVisible]);
 
-  const handleEdit = async (row: AimModelDto) => {
+  const handleEdit = async (row: WeaponConfigDto) => {
     setModalTitle(l('Edit'));
     setModel(row);
     setModalVisible(true);
@@ -59,20 +59,19 @@ const TableList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleSubmit = async (values: AimModelDto) => {
+  const handleSubmit = async (values: WeaponConfigDto) => {
     console.log(values);
     const hide = message.loading(l('SavingWithThreeDot'), 0);
     if (model) {
-      venomAimService.updateAim(values);
-      actionRef.current?.reload();
+      aimService.updateWeaponConfig(values);
     } else {
-      venomAimService.createAim(values);
-      actionRef.current?.reload();
+      aimService.createWeaponConfig(values);
     }
+    actionRef.current?.reload();
     hide();
   };
 
-  const handleDelete = async (row: any) => {
+  const handleDelete = async (row: WeaponConfigDto) => {
     Modal.confirm({
       title: l('AreYouSure'),
       icon: <ExclamationCircleOutlined />,
@@ -81,13 +80,15 @@ const TableList: React.FC = () => {
       cancelText: l('Cancel'),
       onOk: async () => {
         const hide = message.loading(l('ProcessingWithThreeDot'), 0);
+        aimService.deleteWeaponConfig(row.name);
+        actionRef.current?.reload();
         message.success(l('SuccessfullyDeleted'));
         hide();
       },
     });
   };
 
-  const actionDom = (row: AimModelDto) => {
+  const actionDom = (row: WeaponConfigDto) => {
     return (
       <Menu key={row.name + 'menu'}>
         <Menu.Item key={row.name + 'Edit'} onClick={() => handleEdit(row)}>
@@ -100,7 +101,7 @@ const TableList: React.FC = () => {
     );
   };
 
-  const columns: ProColumns<AimModelDto>[] = [
+  const columns: ProColumns<WeaponConfigDto>[] = [
     {
       title: l('Actions'),
       search: false,
@@ -123,12 +124,21 @@ const TableList: React.FC = () => {
       search: false,
     },
     {
-      title: l('Weapons'),
-      dataIndex: 'weapons',
+      title: l('ActiveWeapons'),
+      dataIndex: 'activeWeapons',
       width: 160,
       search: false,
       render: (text, row, index) => {
-        return row.weapons?.join(',');
+        const weaponNames: string[] = [];
+        const weapons = appConfigService.getWeapons();
+        weapons.forEach((p) =>
+          p.children.forEach((c) => {
+            if (row.activeWeapons.indexOf(c.value) >= 0) {
+              weaponNames.push(c.title);
+            }
+          }),
+        );
+        return weaponNames.join(',');
       },
     },
     {
@@ -137,7 +147,7 @@ const TableList: React.FC = () => {
       width: 160,
       search: false,
       render: (text, row, index) => {
-        return row.bindKey;
+        return row.displayBindKey;
       },
     },
     {
@@ -146,7 +156,21 @@ const TableList: React.FC = () => {
       width: 160,
       search: false,
       render: (text, row, index) => {
-        return row.position?.join(',');
+        const positionNames: string[] = [];
+        row.position.forEach((c) => {
+          switch (c) {
+            case 8:
+              positionNames.push('Head');
+              break;
+            case 7:
+              positionNames.push('Neck');
+              break;
+            case 6:
+              positionNames.push('Chest');
+              break;
+          }
+        });
+        return positionNames.join(',');
       },
     },
     {
@@ -177,12 +201,11 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<AimModelDto>
+      <ProTable<WeaponConfigDto>
         actionRef={actionRef}
         rowKey={(d) => d.name}
         request={async (params, sort, filter) => {
-          const aimModels = venomAimService.getList();
-          console.log(aimModels)
+          const aimModels = aimService.getWeaponConfigList();
           return {
             data: aimModels,
             total: aimModels.length,
@@ -196,6 +219,7 @@ const TableList: React.FC = () => {
           <Switch
             checked={active}
             onChange={(checked) => {
+              aimService.enable(checked);
               setActive(checked);
             }}
           />
@@ -206,7 +230,7 @@ const TableList: React.FC = () => {
           </Button>,
         ]}
       />
-      <ModalForm<AimModelDto>
+      <ModalForm<WeaponConfigDto>
         title={modalTitle}
         form={form}
         modalProps={{ centered: true }}
@@ -232,7 +256,7 @@ const TableList: React.FC = () => {
       >
         <ProFormText
           name="name"
-          disabled={model?true:false}
+          disabled={model ? true : false}
           label={l('Name')}
           rules={[
             {
@@ -245,19 +269,25 @@ const TableList: React.FC = () => {
         <ProForm.Group>
           <ProFormTreeSelect
             width="sm"
-            name="weapons"
-            label={l('Weapons')}
-            request={async () =>{
-              return venomBaseService.getWeapons();
+            name="activeWeapons"
+            label={l('ActiveWeapons')}
+            request={async () => {
+              return appConfigService.getWeapons();
             }}
             fieldProps={{
-              treeDefaultExpandAll:true,
+              treeDefaultExpandAll: true,
               fieldNames: {
                 label: 'title',
               },
               treeCheckable: true,
               showCheckedStrategy: TreeSelect.SHOW_CHILD,
             }}
+            rules={[
+              {
+                required: true,
+                message: l('The {0} field is required.', l('WeaponType')),
+              },
+            ]}
             placeholder={l('EnterYourFiled', l('WeaponType').toLowerCase())}
           />
           <ProFormSlider name="distance" label={l('Distance')} width="sm" />
@@ -265,14 +295,17 @@ const TableList: React.FC = () => {
 
         <ProForm.Group>
           <ProFormSelect
-            fieldProps={{
-              mode: 'multiple',
-            }}
             options={keys}
             width="sm"
             name="bindKey"
             label={l('BindKey')}
             showSearch
+            rules={[
+              {
+                required: true,
+                message: l('The {0} field is required.', l('BindKey')),
+              },
+            ]}
           />
           <ProFormSlider name="speed" label={l('Speed')} width="sm" />
         </ProForm.Group>
@@ -298,6 +331,12 @@ const TableList: React.FC = () => {
             width="sm"
             name="position"
             label={l('Position')}
+            rules={[
+              {
+                required: true,
+                message: l('The {0} field is required.', l('Position')),
+              },
+            ]}
           />
           <ProFormSlider range name="shootsFiredScope" label={l('ShootsFiredScope')} width="sm" />
         </ProForm.Group>

@@ -16,13 +16,13 @@ import simpleAbp from './utils/simple-abp';
 
 const loginPath = '/user/login';
 const loginCorrelationPaths = [loginPath, '/user/login-callback'];
-const notAuthPaths = [...loginCorrelationPaths,'/venom/aim'];
+const notAuthPaths = [...loginCorrelationPaths, '/venom'];
 
 const currentPathExistByArr = (arr: string[]) => {
   const pathName = history.location.pathname;
   var result = false;
 
-  for(const i in arr){
+  for (const i in arr) {
     const url = arr[i];
     result = pathName.indexOf(url) >= 0;
     if (result) break;
@@ -74,7 +74,6 @@ export async function getInitialState(): Promise<{
 
   // 未登录
   if (!appInfo.currentUser?.isAuthenticated) {
-
     history.push(loginPath);
     return {
       getAppInfo,

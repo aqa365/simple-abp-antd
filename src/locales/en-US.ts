@@ -35,6 +35,7 @@ export default {
   'menu.Cms.Menus': 'Menus',
 
   'menu.Venom': 'Venom',
+  'menu.Venom.Config': 'Config',
   'menu.Venom.Aim': 'Aim',
   'menu.Venom.Radar': 'Radar',
   'menu.Venom.Rcs': 'Rcs',

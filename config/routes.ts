@@ -129,21 +129,26 @@
     icon: 'PaperClipOutlined',
     path: '/venom',
     routes: [
-      { path: '/venom', redirect: 'aim' },
+      { path: '/venom', redirect: 'config' },
+      {
+        name: 'Config',
+        path: 'config',
+        component: './venom/Config',
+      },
       {
         name: 'Aim',
         path: 'aim',
         component: './venom/Aim',
       },
       {
-        name: 'Radar',
-        path: 'radar',
-        component: './venom/Radar',
-      },
-      {
         name: 'Rcs',
         path: 'rcs',
         component: './venom/Rcs',
+      },
+      {
+        name: 'Radar',
+        path: 'radar',
+        component: './venom/Radar',
       },
       {
         name: 'Trigger',

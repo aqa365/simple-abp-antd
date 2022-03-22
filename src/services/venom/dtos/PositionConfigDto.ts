@@ -3,4 +3,5 @@ export interface PositionConfigDto extends BaseConfigDto {
   position: number[];
   distance: number;
   speed: number;
+  shootsFiredScope: number[];
 }
