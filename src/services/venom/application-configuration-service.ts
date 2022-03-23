@@ -31,6 +31,8 @@ export default {
     const appConfig: ApplicationConfigurationDto = appConfigJson
       ? eval('(' + appConfigJson + ')')
       : undefined;
+    console.log(appConfigJson);
+    console.log(appConfig);
     return appConfig;
   },
   getKeys() {
@@ -77,6 +79,20 @@ export default {
     }
 
     return weapons;
+  },
+  getWeaponNames(weaponIds: number[]) {
+    var weapons = this.getWeapons();
+    var weaponNames: string[] = [];
+    weapons.forEach((p) =>
+      p.children.forEach((c) => {
+        if (weaponIds.indexOf(c.value) >= 0) {
+          weaponNames.push(c.title.toUpperCase());
+        }
+      }),
+    );
+
+    console.log(weaponNames);
+    return weaponNames;
   },
   getConfig(configName: string) {
     const appConfig = this.getAppConfig();

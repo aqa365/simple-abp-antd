@@ -6,6 +6,8 @@ import { stringify } from 'querystring';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 import type { MenuInfo } from 'rc-menu/lib/interface';
+import Auth from '@/services/identity/auth';
+import auth from '@/services/identity/auth';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -16,17 +18,10 @@ export type GlobalHeaderRightProps = {
  */
 const loginOut = async () => {
   //await outLogin();
-  const { query = {}, search, pathname } = history.location;
-  const { redirect } = query;
-  // Note: There may be security issues, please note
-  if (window.location.pathname !== '/user/login' && !redirect) {
-    history.replace({
-      pathname: '/user/login',
-      search: stringify({
-        redirect: pathname + search,
-      }),
-    });
-  }
+  auth.removeToken();
+  Auth.userManager.signoutRedirect({
+    returnUrl: window.location.href,
+  });
 };
 
 const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {

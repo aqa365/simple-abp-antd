@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Dropdown, Button, Switch, Form, Modal, message, TreeSelect } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProForm, { ModalForm, ProFormText, ProFormDigit } from '@ant-design/pro-form';
+import { ModalForm, ProFormText, ProFormDigit } from '@ant-design/pro-form';
 import {
   PlusOutlined,
   SettingOutlined,
@@ -22,12 +22,17 @@ const TableList: React.FC = () => {
   const [modalTitle, setModalTitle] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
+  const [configList, setConfigList] = useState<ConfigDto[]>();
+
   const simpleAbpUtils = new simpleAbp.SimpleAbpUtils();
   const l = simpleAbpUtils.localization.getResource('CmsKit');
   const g = simpleAbpUtils.auth.isGranted;
 
   useEffect(() => {
     const setData = () => {
+      var configs = appConfigService.getConfigList();
+      setConfigList(configs);
+
       if (modalVisible) {
         form.setFieldsValue(model);
       }

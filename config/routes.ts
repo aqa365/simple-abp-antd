@@ -37,11 +37,15 @@
     name: 'Administration',
     icon: 'setting',
     path: '/administration',
+    permission: 'AbpIdentity.Users',
+    access: 'isGranted',
     routes: [
       { path: '/administration', redirect: 'audit-logs' },
       {
         name: 'Identity',
         path: '/administration/identity',
+        permission: 'AbpIdentity.SettingManagement',
+        access: 'isGranted',
         routes: [
           { path: '/administration/identity', redirect: 'users' },
           {
@@ -78,11 +82,15 @@
         name: 'AuditLogs',
         path: 'audit-logs',
         component: './AuditLogs',
+        permission: 'AuditLogging.AuditLogs',
+        access: 'isGranted',
       },
       {
         name: 'Settings',
         path: 'settings',
         component: './Settings',
+        permission: 'AbpIdentity.SettingManagement',
+        access: 'isGranted',
       },
     ],
   },
@@ -90,6 +98,8 @@
     name: 'Cms',
     icon: 'PaperClipOutlined',
     path: '/cms',
+    permission: 'CmsKit.Pages',
+    access: 'isGranted',
     routes: [
       { path: '/cms', redirect: 'pages' },
       {
